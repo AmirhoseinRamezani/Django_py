@@ -5,10 +5,10 @@ from django.http import HttpResponse,JsonResponse
 
 
 def index_view(request):    
-    return HttpResponse('<h1>Home Page</h1>')
+    return render(request,'website\index.html')
 
 def about_view(request):
-    return HttpResponse('<h2>about Page</h2>')
+    return render(request,'website\about.html')
 
 def contact_view(request):
-    return HttpResponse('<h3>contact Page</h3>')
+    return HttpResponse('website\contact')
