@@ -1,0 +1,29 @@
+
+# cmd\>python manage.py makemigrations
+# cmd\>python manage.py migrate
+# Creating and running the database in the first step
+# Next, we will add database objects to our app as object-oriented classes.
+# Apply all migrations: admin, auth, contenttypes, sessions
+
+ORM
+# One of the most powerful features of Django is the Object-Relational Mapper (ORM) that allows you to map SQL to your databases.
+    In fact, Django's ORM is just a way to build and manipulate databases with the Python language at its core, without having to 
+# Django provides us with an admin panel for our users.
+    So, we don't have to worry about creating an admin page or providing an authentication feature because Django provides this feature for us.
+    Before using this feature, you need to migrate your project.
+
+superuser
+    How to create a superuser in Django?
+To create a superuser, first go to the same directory as manager.py and run the following command:
+python manage.py createsuperuser
+Then enter your desired username and press enter.
+Then enter the email address and press enter. 
+(You can leave it blank in the current situation but don’t do this in an official environment)
+Next, enter the password in the Password field and press enter. Enter a strong password to keep it secure.
+Then re-enter the same password for confirmation.
+If the above fields are entered correctly, the Superuser is created successfully.
+
+Now we can log in to our Django Admin page by running the command python manager.py runserver.
+ Then,open a web browser and navigate to the “/admin/” field on your local domain – for example,
+ http://127.0.0.1:8000/admin/ and then enter the username and password.
+ admin : 1_to9
