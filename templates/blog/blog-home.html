@@ -64,12 +64,9 @@
 					<ul class="nav-menu">
 						<li><a href="{% url 'website:index' %}">Home</a></li>
 						<li><a href="{% url 'website:about' %}">About</a></li>
-						<li class="menu-has-children"><a href="">Blog</a>
-							<ul>
-								<li><a href="{% url 'blog:index' %}">Blog Home</a></li>
-								<li><a href="{% url 'blog:single' %}">Blog Single</a></li>
-							</ul>
-						</li>
+
+						<li><a href="{% url 'blog:index' %}">Blog</a></li>
+
 						<li class="menu-has-children"><a href="">Pages</a>
 							<ul>
 								<li><a href="elements.html">Elements</a></li>
@@ -117,7 +114,8 @@
 							<div class="overlay overlay-bg"></div>
 							<a href="#" target="_blank">
 								<div class="thumb">
-									<img class="content-image img-fluid d-block mx-auto" src="{% static 'img/blog/cat-widget1.jpg' %}"alt="">
+									<img class="content-image img-fluid d-block mx-auto"
+										src="{% static 'img/blog/cat-widget1.jpg' %}" alt="">
 								</div>
 								<div class="content-details">
 									<h4 class="content-title mx-auto text-uppercase">Social life</h4>
@@ -134,7 +132,8 @@
 							<div class="overlay overlay-bg"></div>
 							<a href="#" target="_blank">
 								<div class="thumb">
-									<img class="content-image img-fluid d-block mx-auto" src="{% static 'img/blog/cat-widget2.jpg' %}"alt="">
+									<img class="content-image img-fluid d-block mx-auto"
+										src="{% static 'img/blog/cat-widget2.jpg' %}" alt="">
 								</div>
 								<div class="content-details">
 									<h4 class="content-title mx-auto text-uppercase">Politics</h4>
@@ -154,7 +153,7 @@
 									<img class="content-image img-fluid d-block mx-auto" src="{% static 'img/blog/cat-widget3.jpg' %}
 										alt="">
 								</div>
-								<div class="content-details">
+								<div class=" content-details">
 									<h4 class="content-title mx-auto text-uppercase">Food</h4>
 									<span></span>
 									<p>Let the food be finished</p>
@@ -173,142 +172,47 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-8 posts-list">
+					{% for post in posts %}
 					<div class="single-post row">
 						<div class="col-lg-3  col-md-3 meta-details">
 							<ul class="tags">
-								<li><a href="#">Food,</a></li>
-								<li><a href="#">Technology,</a></li>
-								<li><a href="#">Politics,</a></li>
-								<li><a href="#">Lifestyle</a></li>
-							</ul>
+								<!-- {% for cat in post.categories.all %}
+								<li><a href="#">{{ cat.name }}</a></li>
+								{% empty %}
+								<li>No categories</li>
+								{% endfor %} -->
+								<!-- {{ post.Categories.all|join:", "}} -->
+								<!-- <li><a href="#">{{ post.Category.all|join:", "}}</a></li> -->
+								{% for cat in post.categories.all %}
+									<li><a href="#">{{cat.name}}</a> {% if not forloop.last %}, {% endif %}</li>
+								{% endfor %}
+
+							</ul>ّ
 							<div class="user-details row">
-								<p class="user-name col-lg-12 col-md-12 col-6"><a href="#">Mark wiens</a> <span
-										class="lnr lnr-user"></span></p>
-								<p class="date col-lg-12 col-md-12 col-6"><a href="#">12 Dec, 2017</a> <span
-										class="lnr lnr-calendar-full"></span></p>
-								<p class="view col-lg-12 col-md-12 col-6"><a href="#">1.2M Views</a> <span
-										class="lnr lnr-eye"></span></p>
+								<p class="user-name col-lg-12 col-md-12 col-6"><a href="#">{{post.author.get_full_name}}</a> <span class="lnr lnr-user"></span>
+								</p>
+								<p class="date col-lg-12 col-md-12 col-6"><a href="#">{{ post.published_date|date:"d M Y" }}</a> <span class="lnr lnr-calendar-full"></span></p>
+								<p class="view col-lg-12 col-md-12 col-6"><a href="#">{{post.counted_views}} Views</a>
+									<span class="lnr lnr-eye"></span>
+								</p>
 								<p class="comments col-lg-12 col-md-12 col-6"><a href="#">06 Comments</a> <span
 										class="lnr lnr-bubble"></span></p>
 							</div>
 						</div>
 						<div class="col-lg-9 col-md-9 ">
 							<div class="feature-img">
-								<img class="img-fluid" src="{% static 'img/blog/feature-img1.jpg' %}" alt="">
+								<img class="img-fluid" src="{{post.image.url}}" alt="">
 							</div>
-							<a class="posts-title" href="{% url 'blog:single' %}">
-								<h3>Astronomy Binoculars A Great Alternative</h3>
+							<a class="posts-title" href="{% url 'blog:single' pid=post.id %}">
+								<h3>{{post.title}}</h3>
 							</a>
 							<p class="excert">
-								MCSE boot camps have its supporters and its detractors. Some people do not understand
-								why you should have to spend money on boot camp when you can get the MCSE study
-								materials yourself at a fraction.
+								{{post.content|truncatechars:100}}
 							</p>
-							<a href="{% url 'blog:single' %}" class="primary-btn">View More</a>
+							<a href="/blog/{{post.id}}" class="primary-btn">View More</a>
 						</div>
 					</div>
-					<div class="single-post row">
-						<div class="col-lg-3  col-md-3 meta-details">
-							<ul class="tags">
-								<li><a href="#">Food,</a></li>
-								<li><a href="#">Technology,</a></li>
-								<li><a href="#">Politics,</a></li>
-								<li><a href="#">Lifestyle</a></li>
-							</ul>
-							<div class="user-details row">
-								<p class="user-name col-lg-12 col-md-12 col-6"><a href="#">Mark wiens</a> <span
-										class="lnr lnr-user"></span></p>
-								<p class="date col-lg-12 col-md-12 col-6"><a href="#">12 Dec, 2017</a> <span
-										class="lnr lnr-calendar-full"></span></p>
-								<p class="view col-lg-12 col-md-12 col-6"><a href="#">1.2M Views</a> <span
-										class="lnr lnr-eye"></span></p>
-								<p class="comments col-lg-12 col-md-12 col-6"><a href="#">06 Comments</a> <span
-										class="lnr lnr-bubble"></span></p>
-							</div>
-						</div>
-						<div class="col-lg-9 col-md-9 ">
-							<div class="feature-img">
-								<img class="img-fluid" src="{% static 'img/blog/feature-img2.jpg' %}" alt="">
-							</div>
-							<a class="posts-title" href="{% url 'blog:single' %}">
-								<h3>The Basics Of Buying A Telescope</h3>
-							</a>
-							<p class="excert">
-								MCSE boot camps have its supporters and its detractors. Some people do not understand
-								why you should have to spend money on boot camp when you can get the MCSE study
-								materials yourself at a fraction.
-							</p>
-							<a href="{% url 'blog:single' %}" class="primary-btn">View More</a>
-						</div>
-					</div>
-					<div class="single-post row">
-						<div class="col-lg-3  col-md-3 meta-details">
-							<ul class="tags">
-								<li><a href="#">Food,</a></li>
-								<li><a href="#">Technology,</a></li>
-								<li><a href="#">Politics,</a></li>
-								<li><a href="#">Lifestyle</a></li>
-							</ul>
-							<div class="user-details row">
-								<p class="user-name col-lg-12 col-md-12 col-6"><a href="#">Mark wiens</a> <span
-										class="lnr lnr-user"></span></p>
-								<p class="date col-lg-12 col-md-12 col-6"><a href="#">12 Dec, 2017</a> <span
-										class="lnr lnr-calendar-full"></span></p>
-								<p class="view col-lg-12 col-md-12 col-6"><a href="#">1.2M Views</a> <span
-										class="lnr lnr-eye"></span></p>
-								<p class="comments col-lg-12 col-md-12 col-6"><a href="#">06 Comments</a> <span
-										class="lnr lnr-bubble"></span></p>
-							</div>
-						</div>
-						<div class="col-lg-9 col-md-9">
-							<div class="feature-img">
-								<img class="img-fluid" src="{% static 'img/blog/feature-img4.jpg' %}" alt="">
-							</div>
-							<a class="posts-title" href="{% url 'blog:single' %}">
-								<h3>The Night Sky</h3>
-							</a>
-							<p class="excert">
-								MCSE boot camps have its supporters and its detractors. Some people do not understand
-								why you should have to spend money on boot camp when you can get the MCSE study
-								materials yourself at a fraction.
-							</p>
-							<a href="{% url 'blog:single' %}" class="primary-btn">View More</a>
-						</div>
-					</div>
-					<div class="single-post row">
-						<div class="col-lg-3 col-md-3 meta-details">
-							<ul class="tags">
-								<li><a href="#">Food,</a></li>
-								<li><a href="#">Technology,</a></li>
-								<li><a href="#">Politics,</a></li>
-								<li><a href="#">Lifestyle</a></li>
-							</ul>
-							<div class="user-details row">
-								<p class="user-name col-lg-12 col-md-12 col-6"><a href="#">Mark wiens</a> <span
-										class="lnr lnr-user"></span></p>
-								<p class="date col-lg-12 col-md-12 col-6"><a href="#">12 Dec, 2017</a> <span
-										class="lnr lnr-calendar-full"></span></p>
-								<p class="view col-lg-12 col-md-12 col-6"><a href="#">1.2M Views</a> <span
-										class="lnr lnr-eye"></span></p>
-								<p class="comments col-lg-12 col-md-12 col-6"><a href="#">06 Comments</a> <span
-										class="lnr lnr-bubble"></span></p>
-							</div>
-						</div>
-						<div class="col-lg-9 col-md-9">
-							<div class="feature-img">
-								<img class="img-fluid" src="{% static 'img/blog/feature-img5.jpg' %}" alt="">
-							</div>
-							<a class="posts-title" href="{% url 'blog:single' %}">
-								<h3>Telescopes 101</h3>
-							</a>
-							<p class="excert">
-								MCSE boot camps have its supporters and its detractors. Some people do not understand
-								why you should have to spend money on boot camp when you can get the MCSE study
-								materials yourself at a fraction.
-							</p>
-							<a href="{% url 'blog:single' %}" class="primary-btn">View More</a>
-						</div>
-					</div>
+					{% endfor %}
 					<nav class="blog-pagination justify-content-center d-flex">
 						<ul class="pagination">
 							<li class="page-item">
@@ -342,26 +246,9 @@
 								<button type="submit"><i class="fa fa-search"></i></button>
 							</form>
 						</div>
-						<div class="single-sidebar-widget user-info-widget">
-							<img src="{% static 'img/blog/user-info.png" alt="">
-							<a href="#">
-								<h4>Charlie Barber</h4>
-							</a>
-							<p>
-								Senior blog writer
-							</p>
-							<ul class="social-links">
-								<li><a href="#"><i class="fa fa-facebook"></i></a></li>
-								<li><a href="#"><i class="fa fa-twitter"></i></a></li>
-								<li><a href="#"><i class="fa fa-github"></i></a></li>
-								<li><a href="#"><i class="fa fa-behance"></i></a></li>
-							</ul>
-							<p>
-								Boot camps have its supporters andit sdetractors. Some people do not understand why you
-								should have to spend money on boot camp when you can get. Boot camps have itssuppor ters
-								andits detractors.
-							</p>
-						</div>
+						
+						{% include 'blog/blog-writer.html' %}
+
 						<div class="single-sidebar-widget popular-post-widget">
 							<h4 class="popular-title">Popular Posts</h4>
 							<div class="popular-post-list">
@@ -370,7 +257,7 @@
 										<img class="img-fluid" src="{% static 'img/blog/pp1.jpg' %}" alt="">
 									</div>
 									<div class="details">
-										<a href="{% url 'blog:single' %}">
+										<a href="/blog/{{post.id}}">
 											<h6>Space The Final Frontier</h6>
 										</a>
 										<p>02 Hours ago</p>
@@ -381,7 +268,7 @@
 										<img class="img-fluid" src="{% static 'img/blog/pp2.jpg' %}" alt="">
 									</div>
 									<div class="details">
-										<a href="{% url 'blog:single' %}">
+										<a href="/blog/{{post.id}}">
 											<h6>The Amazing Hubble</h6>
 										</a>
 										<p>02 Hours ago</p>
@@ -392,7 +279,7 @@
 										<img class="img-fluid" src="{% static 'img/blog/pp3.jpg' %}" alt="">
 									</div>
 									<div class="details">
-										<a href="{% url 'blog:single' %}">
+										<a href="/blog/{{post.id}}">
 											<h6>Astronomy Or Astrology</h6>
 										</a>
 										<p>02 Hours ago</p>
@@ -403,7 +290,7 @@
 										<img class="img-fluid" src="{% static 'img/blog/pp4.jpg' %}" alt="">
 									</div>
 									<div class="details">
-										<a href="{% url 'blog:single' %}">
+										<a href="/blog/{{post.id}}">
 											<h6>Asteroids telescope</h6>
 										</a>
 										<p>02 Hours ago</p>
