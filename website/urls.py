@@ -6,8 +6,9 @@ app_name ='website'
 urlpatterns = [
     
     # path ('url addree', 'view' , nam e)
-   path('' ,index_view ,name='index'),
-   path('about/' ,about_view ,name='about'),
-   path('contact/' ,contact_view ,name='contact')
+    path('' ,index_view ,name='index'),
+    path('about/' ,about_view ,name='about'),
+    path('contact/' ,contact_view ,name='contact'),
+    path('newsletter/',newsletter_view, name='newsletter')
     
 ]
