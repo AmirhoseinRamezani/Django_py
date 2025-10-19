@@ -4,7 +4,8 @@ from website.models import Contact
 from website.forms import NameForm,ContactForm,NewsletterForm
 from django.contrib import messages
 from .models import NewsletterSubscriber
-
+from django.contrib import sitemaps
+from django.urls import reverse
 
 # Create your views here.
 # from django.http import HttpResponse,JsonResponse
@@ -45,7 +46,7 @@ def newsletter_view(request):
         if form.is_valid():
             try:
                 form.save()
-                messages.success(request, 'ایمیل شما با موفقیت در خبرنامه ثبت شد! ✅')
+                messages.success(request, 'ایمیل شما با موفقیت در خبرنامه ثبت شد!✅')
             except:
                 # اگر ایمیل تکراری باشد
                 messages.info(request, 'این ایمیل قبلاً در خبرنامه ثبت شده است!')

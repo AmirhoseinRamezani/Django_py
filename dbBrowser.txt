@@ -215,3 +215,50 @@ Pattern method: Abstract base models
 Proxy pattern: Runtime behavior modifications
 
 The Model Meta class acts as a configuration interface between the Django ORM and the database layer It allows for customization of the declarative model while maintaining separation of concerns.
+
+
+
+
+=============================================================================================================================
+
+
+Django extensions 
+
+You can get Django Extensions by using pip:
+
+$ pip install django-extensions
+If you want to install it from source, grab the git repository and install:
+
+$ git clone git://github.com/django-extensions/django-extensions.git
+$ cd django-extensions
+$ pip install .
+Then you will need to add the django_extensions application to the INSTALLED_APPS setting of your Django project settings.py file.
+
+This Django framework is used to create a sitemap in the form of an xml file. 
+A sitemap is an XML file on your website that tells search engine crawlers how your pages are located on the server, 
+how they change, and how "important" certain pages are compared to other pages on your site.
+ This information helps search engines index your site.
+
+ =======================================================================================================================================
+ 
+ $ pip install django-taggit
+Add "taggit" to your project’s INSTALLED_APPS setting.
+
+Run ./manage.py migrate.
+And then to any model you want tagging on do the following:
+
+from django.db import models
+
+from taggit.managers import TaggableManager
+
+class Food(models.Model):
+    # ... fields here
+
+    tags = TaggableManager()
+
+
+=============================================================================================
+
+
+pip install django-summernote
+
