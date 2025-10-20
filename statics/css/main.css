@@ -3892,6 +3892,38 @@ body.mobile-nav-active #mobile-nav-toggle {
 
 /*============ End Blog Home Styles  =============*/
 /*============ Start Blog Single Styles  =============*/
+
+/* =============End style tags================ */
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-item {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #495057;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.tag-item:hover {
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.no-tags {
+    color: #6c757d;
+    font-style: italic;
+}
+ /* =============End style tags================ */
 .single-post-area {
   padding-top: 80px;
   padding-bottom: 80px;
