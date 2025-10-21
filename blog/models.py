@@ -64,3 +64,26 @@ class Post(models.Model):
         if len(plain_text) > chars:
             return plain_text[:chars] + '...'
         return plain_text
+    def comments_count(self):
+        """تعداد کامنت‌های تأیید شده پست"""
+        return self.comments.filter(approved=True).count()
+    
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments',verbose_name='پست')
+    name = models.CharField(max_length=255, verbose_name='نام')
+    email = models.EmailField(verbose_name='ایمیل')
+    subject = models.CharField(max_length=255, verbose_name='موضوع')
+    message = models.TextField(verbose_name='پیام')
+    approved = models.BooleanField(default=False, verbose_name='تأیید شده')
+    created_date = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
+    updated_date = models.DateTimeField(auto_now=True, verbose_name='تاریخ بروزرسانی')
+
+    class Meta:
+        ordering = ['-created_date']
+        verbose_name = 'نظر'
+        verbose_name_plural = 'نظرات'
+
+    def __str__(self):
+        return f"{self.name} - {self.post.title}"
+
+    

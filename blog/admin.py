@@ -1,5 +1,5 @@
 from django.contrib import admin
-from blog.models import Post, Category
+from blog.models import Post, Category,Comment
 from django_summernote.admin import SummernoteModelAdmin
 
 @admin.register(Post)
@@ -40,3 +40,24 @@ class CategoryAdmin(admin.ModelAdmin):
     def post_count(self, obj):
         return obj.posts.count()  # استفاده از related_name='posts'
     post_count.short_description = 'تعداد پست‌ها'
+    
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    date_hierarchy = 'created_date'
+    empty_value_display = "-empty-"
+    list_display = ('name', 'post', 'email', 'approved', 'created_date')
+    list_filter = ('post', 'approved', 'created_date')
+    search_fields = ['name', 'email', 'message', 'subject']
+    list_editable = ['approved']
+    # readonly_fields = ['created_date', 'updated_date']
+    
+    # اکشن برای تأیید/لغو تأیید کامنت‌ها
+    def approve_comments(self, request, queryset):
+        queryset.update(approved=True)
+    approve_comments.short_description = "تأیید کامنت‌های انتخاب شده"
+    
+    def disapprove_comments(self, request, queryset):
+        queryset.update(approved=False)
+    disapprove_comments.short_description = "لغو تأیید کامنت‌های انتخاب شده"
+    
+    actions = [approve_comments, disapprove_comments]

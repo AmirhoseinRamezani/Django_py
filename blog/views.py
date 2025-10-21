@@ -1,5 +1,5 @@
 from django.shortcuts import render,get_object_or_404
-from blog.models import Post
+from blog.models import Post,Comment
 from django.db.models import Q
 from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
 # Create your views here.
@@ -53,8 +53,8 @@ def blog_single(request,pid):
     # افزایش تعداد بازدیدها
     post.counted_views += 1
     post.save(update_fields=['counted_views'])    
-    
-    context = {'post':post}
+    comments = Comment.objects.filter(post=post.id,approved=True).order_by('-created_date')
+    context = {'post':post ,'comments':comments}
     return render(request,'blog/blog-single.html',context)
 
 

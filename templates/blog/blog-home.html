@@ -192,8 +192,7 @@
 								<p class="view col-lg-12 col-md-12 col-6"><a href="#">{{post.counted_views}} Views</a>
 									<span class="lnr lnr-eye"></span>
 								</p>
-								<p class="comments col-lg-12 col-md-12 col-6"><a href="#">06 Comments</a> <span
-										class="lnr lnr-bubble"></span></p>
+								<p class="comments col-lg-12 col-md-12 col-6"><a href="{% url 'blog:single' pid=post.id %}">{{ post.comments_count }} Comments</a> <span class="lnr lnr-bubble"></span></p>
 							</div>
 						</div>
 						<div class="col-lg-9 col-md-9 ">
@@ -369,7 +368,7 @@
 
 	</footer>
 	<!-- End footer Area -->
-
+	<!-- <script id="dsq-count-scr" src="//django-py-1.disqus.com/count.js" async></script> -->
 	<script src="{% static 'js/vendor/jquery-2.2.4.min.js' %}"></script>
 	<script src="{% static 'js/popper.min.js' %}"></script>
 	<script src="{% static 'js/vendor/bootstrap.min.js' %}"></script>
