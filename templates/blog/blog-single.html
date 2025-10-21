@@ -49,7 +49,7 @@
 										class="lnr lnr-calendar-full"></span></p>
 								<p class="view col-lg-3 col-sm-6"><a href="#">{{post.counted_views}} Views</a> <span
 										class="lnr lnr-eye"></span></p>
-								<p class="comments col-lg-3 col-sm-6"><a href="#">06 Comments</a> <span
+								<p class="comments col-lg-3 col-sm-6"><a href="#">{{ comments.count }} Comments</a> <span
 										class="lnr lnr-bubble"></span></p>
 							</div>
 							<hr>
@@ -144,37 +144,85 @@
 						</div>
 						{% empty %}  <!-- اگر کامنتی نبود -->
 						<div class="alert ">
-							هنوز نظری برای این پست ثبت نشده است.
+							There are no comments for this post yet.
 						</div>
 						{% endfor %}
 					</div>
 					<div class="comment-form">
 						<h4>Leave a Comment</h4>
-						<form>
+						<form method="post" action='{% url "blog:single" pid=post.id %}'>
+							{% csrf_token %}
+							
+							<!-- نمایش خطاهای فرم -->
+							{% if form.errors %}
+							<div class="alert alert-danger">
+								<strong>Please correct the errors below:</strong>
+								<ul>
+								{% for field in form %}
+									{% for error in field.errors %}
+										<li>{{ field.label }}: {{ error }}</li>
+									{% endfor %}
+								{% endfor %}
+								{% for error in form.non_field_errors %}
+									<li>{{ error }}</li>
+								{% endfor %}
+								</ul>
+							</div>
+							{% endif %}
+							
+							<!-- نمایش پیام‌های سیستم -->
+							{% if messages %}
+							<div class="messages">
+								{% for message in messages %}
+								<div class="alert alert-{{ message.tags }}">
+									{{ message }}
+								</div>
+								{% endfor %}
+							</div>
+							{% endif %}
+							
+							<!-- فیلد پست به صورت hidden -->
+							{{ form.post }}
+							
 							<div class="form-group form-inline">
 								<div class="form-group col-lg-6 col-md-12 name">
-									<input type="text" class="form-control" id="name" placeholder="Enter Name"
-										onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Name'">
+									{{ form.name }}
+									{% if form.name.errors %}
+									<div class="text-danger">{{ form.name.errors }}</div>
+									{% endif %}
 								</div>
 								<div class="form-group col-lg-6 col-md-12 email">
-									<input type="email" class="form-control" id="email"
-										placeholder="Enter email address" onfocus="this.placeholder = ''"
-										onblur="this.placeholder = 'Enter email address'">
+									{{ form.email }}
+									{% if form.email.errors %}
+									<div class="text-danger">{{ form.email.errors }}</div>
+									{% endif %}
 								</div>
 							</div>
 							<div class="form-group">
-								<input type="text" class="form-control" id="subject" placeholder="Subject"
-									onfocus="this.placeholder = ''" onblur="this.placeholder = 'Subject'">
+								{{ form.subject }}
+								{% if form.subject.errors %}
+								<div class="text-danger">{{ form.subject.errors }}</div>
+								{% endif %}
 							</div>
 							<div class="form-group">
-								<textarea class="form-control mb-10" rows="5" name="message" placeholder="Messege"
-									onfocus="this.placeholder = ''" onblur="this.placeholder = 'Messege'"
-									required=""></textarea>
+								{{ form.message }}
+								{% if form.message.errors %}
+								<div class="text-danger">{{ form.message.errors }}</div>
+								{% endif %}
 							</div>
-							<a href="#" class="primary-btn text-uppercase">Post Comment</a>
+							
+							<!-- فیلد کپچا
+							<div class="form-group">
+								{{ form.captcha }}
+								{% if form.captcha.errors %}
+								<div class="text-danger">{{ form.captcha.errors }}</div>
+								{% endif %}
+							</div>
+							 -->
+							<button type="submit" class="primary-btn text-uppercase">Post Comment</button>
 						</form>
 					</div>
-
+				</div>
 					<!--
 					https://disqus.com/
 					<div class="comments-area">
@@ -198,7 +246,7 @@
 							</script>
 							<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 					</div>-->
-				</div>
+				
 				<div class="col-lg-4 sidebar-widgets">
 					<div class="widget-wrap">
 

@@ -2,6 +2,10 @@ from django.shortcuts import render,get_object_or_404
 from blog.models import Post,Comment
 from django.db.models import Q
 from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
+from blog.forms import CommentForm
+from django.contrib import messages
+
+
 # Create your views here.
 def blog_view(request, **kwargs):
     posts = Post.objects.filter(status=True)
@@ -43,20 +47,40 @@ def blog_view(request, **kwargs):
     
     return render(request, 'blog/blog-home.html', context)
 
-def blog_single(request,pid):
-    post = get_object_or_404(
-        Post.objects.select_related('author')
+def blog_single(request, pid):
+    post = get_object_or_404(Post.objects.select_related('author')
                     .prefetch_related('categories', 'tags')
                     .filter(status=True), 
         pk=pid
     )
+    
+    comments = Comment.objects.filter(post=post, approved=True).order_by('-created_date')
+    
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            # تنظیم خودکار پست برای کامنت
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.save()
+            
+            messages.success(request, 'Your comment was submitted successfully and is awaiting approval.')
+            form = CommentForm()  # فرم خالی برای نمایش مجدد
+        else:
+            messages.error(request, 'There was an error submitting your comment. Please check the form.')
+    else:
+        form = CommentForm(initial={'post': post.id})
+    
     # افزایش تعداد بازدیدها
     post.counted_views += 1
-    post.save(update_fields=['counted_views'])    
-    comments = Comment.objects.filter(post=post.id,approved=True).order_by('-created_date')
-    context = {'post':post ,'comments':comments}
-    return render(request,'blog/blog-single.html',context)
-
+    post.save(update_fields=['counted_views'])
+    
+    context = {
+        'post': post,
+        'comments': comments,
+        'form': form
+    }
+    return render(request, 'blog/blog-single.html', context)
 
 def blog_search(request):
     posts = Post.objects.filter(status=1)

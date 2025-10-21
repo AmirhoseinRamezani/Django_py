@@ -45,12 +45,18 @@ class CategoryAdmin(admin.ModelAdmin):
 class CommentAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_date'
     empty_value_display = "-empty-"
-    list_display = ('name', 'post', 'email', 'approved', 'created_date')
+    list_display = ('name', 'post', 'email', 'message_summary', 'approved', 'created_date')
     list_filter = ('post', 'approved', 'created_date')
     search_fields = ['name', 'email', 'message', 'subject']
     list_editable = ['approved']
     # readonly_fields = ['created_date', 'updated_date']
-    
+    def message_summary(self, obj):
+        """نمایش خلاصه‌ای از متن کامنت"""
+        if obj.message:
+            # نمایش 50 کاراکتر اول و اگر بیشتر بود ...
+            return obj.message[:50] + "..." if len(obj.message) > 50 else obj.message
+        return "-empty-"
+    message_summary.short_description = "متن کامنت"
     # اکشن برای تأیید/لغو تأیید کامنت‌ها
     def approve_comments(self, request, queryset):
         queryset.update(approved=True)

@@ -69,7 +69,7 @@ class Post(models.Model):
         return self.comments.filter(approved=True).count()
     
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments',verbose_name='پست')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments', verbose_name='پست')
     name = models.CharField(max_length=255, verbose_name='نام')
     email = models.EmailField(verbose_name='ایمیل')
     subject = models.CharField(max_length=255, verbose_name='موضوع')
@@ -82,8 +82,16 @@ class Comment(models.Model):
         ordering = ['-created_date']
         verbose_name = 'نظر'
         verbose_name_plural = 'نظرات'
+        indexes = [
+            models.Index(fields=['post', 'approved', 'created_date']),
+        ]
 
     def __str__(self):
-        return f"{self.name} - {self.post.title}"
+        return f"{self.name} - {self.subject}"
 
+    def get_short_message(self):
+        """خلاصه پیام برای نمایش در ادمین"""
+        if len(self.message) > 50:
+            return self.message[:50] + "..."
+        return self.message
     
