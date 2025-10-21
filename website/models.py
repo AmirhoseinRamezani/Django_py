@@ -9,12 +9,17 @@ class Contact(models.Model):
     message = models.TextField(verbose_name='پیام')
     created_date = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ارسال')
     updated_date = models.DateTimeField(auto_now=True)
+    is_read = models.BooleanField(default=False, verbose_name='خوانده شده')
     
     class Meta:
+        verbose_name = 'تماس'
+        verbose_name_plural = 'تماس‌ها'
         ordering = ['-created_date']
+        
+    # def __str__(self):
+    #     return self.name
     def __str__(self):
-        return self.name
-    
+        return f"{self.name} - {self.subject}"
     
 # class Newsletter(models.Model):
 #     email = models.EmailField(unique=True)
@@ -31,3 +36,4 @@ class NewsletterSubscriber(models.Model):  # نام جدید
     
     def __str__(self):
         return self.email
+    

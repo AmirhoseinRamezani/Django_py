@@ -4,6 +4,8 @@ from django.urls import reverse
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItemBase
 from django.utils import timezone
+from django.utils.html import strip_tags
+from django.utils.text import Truncator
 
 
 # Create your models here.
@@ -50,3 +52,15 @@ class Post(models.Model):
         
     def get_absolute_url(self):
         return reverse('blog:single' ,kwargs={'pid':self.id})
+
+    def excerpt(self, words=25):
+        """متن خلاصه بدون HTML"""
+        plain_text = strip_tags(self.content)
+        return Truncator(plain_text).words(words)
+    
+    def excerpt_chars(self, chars=100):
+        """متن خلاصه بر اساس کاراکتر"""
+        plain_text = strip_tags(self.content)
+        if len(plain_text) > chars:
+            return plain_text[:chars] + '...'
+        return plain_text

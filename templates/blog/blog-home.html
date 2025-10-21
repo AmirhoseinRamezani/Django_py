@@ -179,12 +179,13 @@
 						<div class="col-lg-3  col-md-3 meta-details">
 							<ul class="tags">
 								{% for cat in post.categories.all %}
-								<li><a href="{% url 'blog:category' cat_name=cat.name %}">{{cat.name}}</a> {% if not forloop.last %}, {% endif %}</li>
+								<li><a href="{% url 'blog:category' cat_name=cat.name %}">{{cat.name}}</a> 
+									{% if not forloop.last %}, {% endif %}</li>
 								{% endfor %}
-							</ul>ّ
+							</ul>
 							<div class="user-details row">
-								<p class="user-name col-lg-12 col-md-12 col-6"><a
-										href="{% url 'blog:author' author_username=post.author.username %}">{{post.author.get_full_name}}</a>
+								<p class="user-name col-lg-12 col-md-12 col-6">
+									<a href="{% url 'blog:author' author_username=post.author.username %}">{{post.author.get_full_name}}</a>
 									<span class="lnr lnr-user"></span>
 								</p>
 								<p class="date col-lg-12 col-md-12 col-6"><a href="#">{{ post.published_date|date:"d M Y" }}</a> <span class="lnr lnr-calendar-full"></span></p>
@@ -197,62 +198,57 @@
 						</div>
 						<div class="col-lg-9 col-md-9 ">
 							<div class="feature-img">
-								<img class="img-fluid" src="{{post.image.url}}" alt="">
+								<img class="img-fluid" src="{{ post.image.url }}" alt="{{ post.title }}">
 							</div>
 							<a class="posts-title" href="{% url 'blog:single' pid=post.id %}">
 								<h3>{{post.title}}</h3>
 							</a>
 							<p class="excert">
-								{{post.content|truncatechars:100}}
+								{{ post.content|striptags|truncatewords:25 }}
+								<!-- {{ post.excerpt }} -->
+								<!-- {{ post.excerpt_chars }} -->
 							</p>
 							<a href="/blog/{{post.id}}" class="primary-btn">View More</a>
 						</div>
 					</div>
+					{% empty %}
+					<div class="alert alert-info text-center">
+						هیچ پستی یافت نشد.
+					</div>
 					{% endfor %}
 					<nav class="blog-pagination justify-content-center d-flex">
-						<!-- <div class="pagination">
-							<span class="step-links">
-								{% if posts.has_previous %}
-								<a href="?page=1">&laquo; first</a>
-								<a href="?page={{ posts.previous_page_number }}">previous</a>
-								{% endif %}
-
-								<span class="current">
-									Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
-								</span>
-
-								{% if posts.has_next %}
-								<a href="?page={{ posts.next_page_number }}">next</a>
-								<a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-								{% endif %}
-							</span>
-						</div> -->
 						<ul class="pagination">
 							{% if posts.has_previous %}
 							<li class="page-item">
-								<a href="?page={{ posts.previous_page_number }}" class="page-link" aria-label="Previous">
+								<a href="?page={{ posts.previous_page_number }}" class="page-link"
+									aria-label="Previous">
 									<span aria-hidden="true">
 										<span class="lnr lnr-chevron-left"></span>
 									</span>
 								</a>
 							</li>
 							{% endif %}
+
 							{% for i in posts.paginator.page_range %}
 							{% if posts.number == i %}
-								<li class="page-item active"><a href="?page={{i}}" class="page-link">{{i}}</a></li>
-							{% else %}
-								<li class="page-item"><a href="?page={{i}}" class="page-link">{{i}}</a></li>
-							{% endif %}
-							{% endfor %}
-							{% if posts.has_next %}
-							<li class="page-item">
-								<a href="?page={{ posts.next_page_number }}" class="page-link" aria-label="Next">
-									<span aria-hidden="true">
-										<span class="lnr lnr-chevron-right"></span>
-									</span>
-								</a>
+							<li class="page-item active">
+								<span class="page-link">{{ i }}</span>
 							</li>
-							{% endif %}
+							{% elif i > posts.number|add:-3 and i < posts.number|add:3 %} <li class="page-item">
+								<a href="?page={{ i }}" class="page-link">{{ i }}</a>
+								</li>
+								{% endif %}
+								{% endfor %}
+
+								{% if posts.has_next %}
+								<li class="page-item">
+									<a href="?page={{ posts.next_page_number }}" class="page-link" aria-label="بعدی">
+										<span aria-hidden="true">
+											<span class="lnr lnr-chevron-right"></span>
+										</span>
+									</a>
+								</li>
+								{% endif %}
 						</ul>
 					</nav>
 				</div>
