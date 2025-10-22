@@ -1,0 +1,34 @@
+{# templates/feeds/post-content.html #}
+
+<div class="post-content">
+    {% if obj.content %}
+        <p>{{ obj.content|truncatewords:20|safe }}</p>
+    {% endif %}
+
+    {% if obj.image %}
+        <p><img src="{{ obj.image.url }}" alt="{{ obj.title }}" width="300"></p>
+    {% endif %}
+
+    <div class="post-meta">
+        <p><strong>Author:</strong> {{ obj.author.get_full_name|default:obj.author.username }}</p>
+        <p><strong>Published:</strong> {{ obj.published_date|date:"M d, Y" }}</p>
+        
+        {% if obj.categories.all %}
+        <p>
+            <strong>Categories:</strong> 
+            {% for category in obj.categories.all %}
+                <span class="category-tag">{{ category.name }}</span>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+        {% endif %}
+        
+        {% if obj.tags.all %}
+        <p>
+            <strong>Tags:</strong> 
+            {% for tag in obj.tags.all %}
+                <span class="tag">{{ tag.name }}</span>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+        {% endif %}
+    </div>
+</div>
