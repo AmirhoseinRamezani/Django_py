@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'taggit',
     'django_summernote',
     'website.apps.WebsiteConfig',
-    'blog'
+    'blog',
+    'accounts'
 ]
 # sites framework
 SITE_ID = 2
