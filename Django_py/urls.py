@@ -35,11 +35,12 @@ urlpatterns = [    # path ('url addree', 'view' , name)
     path('' ,include('website.urls')),
     # path('blog/' ,include('blog.urls'))
     path('blog/' ,include(('blog.urls', 'blog'), namespace='blog')),
-    path('accounts/', include('accounts.urls', namespace='accounts')),    path('summernote/', include('django_summernote.urls')),
+    path('accounts/', include('accounts.urls', namespace='accounts')),    
+    path('summernote/', include('django_summernote.urls')),
     path("sitemap.xml",sitemap,
         {"sitemaps": sitemaps},
         name="django.contrib.sitemaps.views.sitemap",),   
-    
+    path('', include('blog.urls', namespace='blog_root')),
     path('robots.txt', include('robots.urls')),
     path('captcha/', include('captcha.urls')),
     path('captcha/', include('captcha.urls')),

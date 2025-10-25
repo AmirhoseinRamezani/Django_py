@@ -212,4 +212,6 @@ INTERNAL_IPS = [
     "localhost",
 ]
 
-
+# برای django-simple-captcha
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
+CAPTCHA_LENGTH = 4
