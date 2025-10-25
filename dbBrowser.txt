@@ -262,3 +262,17 @@ class Food(models.Model):
 
 pip install django-summernote
 
+=============================================================================================
+
+sign up
+Added professional features
+
+Modern and Responsive Design
+Server and Client Side Validation
+User Friendly Messages
+Smart Post-Login Guidance
+Precise Error Display
+Password Help
+RTL Support
+Beautiful Icons
+Subtle Animations

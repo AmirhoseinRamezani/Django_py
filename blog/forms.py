@@ -1,36 +1,32 @@
 from django import forms
 from blog.models import Comment
-# from captcha.fields import CaptchaField
+from captcha.fields import CaptchaField
 
 class CommentForm(forms.ModelForm):
-    # captcha = CaptchaField()
+    captcha = CaptchaField(
+        label='کد امنیتی',
+        error_messages={'invalid': 'کد امنیتی وارد شده صحیح نیست'}
+    )
     
-    class Meta: 
+    class Meta:
         model = Comment
-        fields = ['post', 'name', 'email', 'subject', 'message']
+        fields = ['name', 'email', 'subject', 'message', 'captcha']  # اضافه کردن captcha به fields
         widgets = {
-            'post': forms.HiddenInput(),
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter Name'
+                'placeholder': 'Your Name'
             }),
             'email': forms.EmailInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Enter email address'
+                'class': 'form-control',
+                'placeholder': 'Email Address'
             }),
             'subject': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Subject'
             }),
             'message': forms.Textarea(attrs={
-                'class': 'form-control mb-10',
-                'rows': 5,
-                'placeholder': 'Message'
-            })
-        }
-        labels = {
-            'name': 'نام',
-            'email': 'ایمیل', 
-            'subject': 'موضوع',
-            'message': 'پیام'
+                'class': 'form-control',
+                'placeholder': 'Your Message',
+                'rows': 5
+            }),
         }

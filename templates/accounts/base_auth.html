@@ -1,0 +1,139 @@
+<!-- templates/accounts/base_auth.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}حساب کاربری{% endblock %} - سایت ما</title>
+    
+    <!-- Bootstrap 4 -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/signin.css' %}">
+    
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+        }
+        
+        .auth-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .kpx_login {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .kpx_authTitle {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .kpx_authTitle a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .kpx_authTitle a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-outline-primary {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-color: transparent;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        /* .input-group-addon { */
+            /* background: #f8f9fa; */
+            /* border: 2px solid #e9ecef; */
+            /* border-right: none; */
+            /* border-radius: 10px ; */
+        /* } */
+        
+        .custom-checkbox .custom-control-input:checked~.custom-control-label::before {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .kpx_forgotPwd a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .kpx_forgotPwd a:hover {
+            color: var(--secondary-color);
+        }
+        
+        /* RTL Support */
+        .form-control {
+            text-align: right;
+        }
+/*         
+        .input-group-addon {
+            border-right: 2px solid #e9ecef;
+            border-left: none;
+            border-radius: 10px;
+        } */
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="kpx_login">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="//code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    
+    {% block extra_scripts %}
+    {% endblock %}
+</body>
+</html>

@@ -1,122 +1,107 @@
+<!-- templates/accounts/login.html -->
+{% extends 'accounts/base_auth.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <link rel="stylesheet" href="{% static 'css/bootstrap.css'%}">
-    <link rel="stylesheet" href="{% static 'css/signin.css' %}">
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-    <title>signin</title>
-</head>
-<body>
-    <div class="container">
-        <div class="kpx_login">
-            <h3 class="kpx_authTitle">Login or <a href="#">Sign up</a></h3>
-            {% if messages %}
-            <div class="messages mt-3">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-            <!-- <div class="row kpx_row-sm-offset-3 kpx_socialButtons">
-            <div class="col-xs-2 col-sm-2">
-                <a href="#" class="btn btn-lg btn-block kpx_btn-facebook" data-toggle="tooltip" data-placement="top" title="Facebook">
-                <i class="fa fa-facebook fa-2x"></i>
-                <span class="hidden-xs"></span>
-                </a>
-            </div>
-            <div class="col-xs-2 col-sm-2">
-                <a href="#" class="btn btn-lg btn-block kpx_btn-google-plus" data-toggle="tooltip" data-placement="top" title="Google Plus">
-                <i class="fa fa-google-plus fa-2x"></i>
-                <span class="hidden-xs"></span>
-                </a>
-            </div>
-              
-        </div><br> -->
+{% block title %}ورود{% endblock %}
 
-        <!-- <div class="row kpx_row-sm-offset-3 kpx_socialButtons"> -->
-            <!-- <div class="col-xs-2 col-sm-2">
-                <a href="#" class="btn btn-lg btn-block kpx_btn-github" data-toggle="tooltip" data-placement="top" title="GitHub">
-                <i class="fa fa-github fa-2x"></i>
-                <span class="hidden-xs"></span>
-                </a>
-            </div>
-            <div class="col-xs-2 col-sm-2">
-                <a href="#" class="btn btn-lg btn-block kpx_btn-linkedin" data-toggle="tooltip" data-placement="top" title="LinkedIn">
-                <i class="fa fa-linkedin fa-2x"></i>
-                <span class="hidden-xs"></span>
-                </a>
-            </div>
-        </div>
-        </div><br>
-            <div class="row kpx_row-sm-offset-3 kpx_loginOr">
-                <div class="col-xs-12 col-sm-6">
-                    <hr class="kpx_hrOr">
-                    <span class="kpx_spanOr">or</span>
-                </div>
-            </div> -->
+{% block content %}
+<h3 class="kpx_authTitle">ورود یا <a href="{% url 'accounts:signup' %}">ثبت نام</a></h3>
 
-            <div class="row kpx_row-sm-offset-3">
-                <div class="col-xs-12 col-sm-6">	
-                    <form class="kpx_loginForm" action="{% url 'accounts:login' %}" autocomplete="off" method="POST">
-                        {% csrf_token %}
-                        {% if request.GET.next %}
-                        <input type="hidden" name="next" value="{{ request.GET.next }}">
-                        {% endif %}
-                        <div class="input-group">
-                            <span class="input-group-addon"><span class="fa fa-user"></span></span>
-                            <input type="text" name="username" class="form-control" name="username" placeholder="Username">
-                        </div>
-                        <hr />
-                                            
-                        <div class="input-group">
-                            <span class="input-group-addon"><span class="fa fa-key"></span></span>
-                            <input  type="password" class="form-control" name="password" placeholder="Password">
-                        </div>
-                        <span class="tag tag-danger">Password Error!</span> | <span class="tag tag-success">Login success!</span> | <span class="tag tag-warning">Some of password must not be empty!</span>
-                        <hr />
-                        <button class="btn btn-lg btn-outline-primary btn-block" type="submit"><i class="fa fa-sign-in"></i> Login</button>
-                    </form>
-                </div>
-            </div>
-            <div class="row kpx_row-sm-offset-3">
-                <div class="col-xs-12 col-sm-3">
-                <p></p>
-                    <label class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" value="remember-me">
-                            <span class="custom-control-indicator"></span>
-                            <span class="custom-control-description">Remember me!</span>
-                            </label>
-                            </p>
-
-                </div>
-                <div class="col-xs-12 col-sm-3">
-                    <p class="kpx_forgotPwd">
-                        <a href="#">Forgot password?</a>
-                    </p>
-                </div>
-                
-                <div class="col-lg-12">
-                    <p class="text-lg-center text-md-center text-sm-center text-xs-center">Created by <a href="http://www.koalapix.com" target="_blank">koalapix. studio</a>, for crazy developers...</p>
-                </div>
-            </div>	    	
-        </div>
-
+<!-- نمایش پیام‌ها -->
+{% if messages %}
+<div class="messages mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        <i class="fas 
+            {% if message.tags == 'success' %}fa-check-circle
+            {% elif message.tags == 'error' %}fa-exclamation-circle
+            {% else %}fa-info-circle{% endif %} me-2"></i>
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
-    <script>
-        $(function () {
-         $('[data-toggle="tooltip"]').tooltip()
-        })
-    </script>
-</body>
-</html>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- نمایش خطاهای فرم -->
+{% if form.errors %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong><i class="fas fa-exclamation-triangle me-2"></i>خطا!</strong> 
+    لطفا اطلاعات وارد شده را بررسی کنید.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endif %}
+
+<div class="row kpx_row-sm-offset-3">
+    <div class="col-12">	
+        <form class="kpx_loginForm" action="{% url 'accounts:login' %}" autocomplete="off" method="POST">
+            {% csrf_token %}
+            
+            {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
+            
+            <!-- فیلد نام کاربری -->
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="text" name="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                           placeholder="نام کاربری یا ایمیل" value="{{ form.username.value|default:'' }}" required>
+                    <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                    {% if form.username.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.username.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- فیلد رمز عبور -->
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="password" name="password" class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
+                           placeholder="رمز عبور" required>
+                    <span class="input-group-addon"><i class="fa fa-key"></i></span>
+                    {% if form.password.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.password.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="remember_me" name="remember_me" checked>
+                            <label class="custom-control-label" for="remember_me">مرا به خاطر بسپار</label>
+                        </div>
+                    </div>
+                    <!-- <div class="col-6 text-left">
+                        <p class="forgot-password">
+                            <a href="#">رمز عبور را فراموش کرده‌اید؟</a>
+                        </p>
+                    </div> -->
+                </div>
+            </div>
+
+            <button class="btn btn-lg btn-outline-primary btn-block" type="submit">
+                <i class="fa fa-sign-in me-2"></i>ورود به حساب
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="row kpx_row-sm-offset-3 mt-4">
+    <div class="col-12 text-center">
+        <p class="mb-0">
+            حساب کاربری ندارید؟ 
+            <a href="{% url 'accounts:signup' %}" class="font-weight-bold">ثبت نام کنید</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

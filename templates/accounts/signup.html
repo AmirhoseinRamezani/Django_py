@@ -1,52 +1,160 @@
+<!-- templates/accounts/signup.html -->
+{% extends 'accounts/base_auth.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/signin.css' %}">
-    <title>Sign Up</title>
-</head>
-<body>
-    <div class="container">
-        <div class="kpx_login">
-            <h3 class="kpx_authTitle">Sign Up or <a href="{% url 'accounts:login' %}">Login</a></h3>
-            
-            {% if messages %}
-            <div class="messages mt-3">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-            
-            <div class="row kpx_row-sm-offset-3">
-                <div class="col-xs-12 col-sm-6">	
-                    <form class="kpx_loginForm" action="{% url 'accounts:signup' %}" method="post">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <input type="text" name="username" class="form-control" placeholder="Username" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="email" name="email" class="form-control" placeholder="Email" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="password" name="password1" class="form-control" placeholder="Password" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="password" name="password2" class="form-control" placeholder="Confirm Password" required>
-                        </div>
-                        <button class="btn btn-lg btn-outline-primary btn-block" type="submit">Sign Up</button>
-                    </form>
-                </div>
-            </div>
-        </div>
+
+{% block title %}ثبت نام{% endblock %}
+
+{% block content %}
+<h3 class="kpx_authTitle">ثبت نام یا <a href="{% url 'accounts:login' %}">ورود</a></h3>
+
+<!-- نمایش پیام‌ها -->
+{% if messages %}
+<div class="messages mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        <i class="fas 
+            {% if message.tags == 'success' %}fa-check-circle
+            {% elif message.tags == 'error' %}fa-exclamation-circle
+            {% else %}fa-info-circle{% endif %} me-2"></i>
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
-</body>
-</html>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- نمایش خطاهای فرم -->
+{% if form.errors %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong><i class="fas fa-exclamation-triangle me-2"></i>خطا!</strong> 
+    لطفا موارد زیر را بررسی کنید:
+    <ul class="mb-0 mt-2 pr-3">
+        {% for field in form %}
+            {% for error in field.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endif %}
+
+<div class="row kpx_row-sm-offset-3">
+    <div class="col-12">	
+        <form class="kpx_loginForm" action="{% url 'accounts:signup' %}" method="post">
+            {% csrf_token %}
+            
+            <!-- فیلد نام کاربری -->
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="text" name="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                           placeholder="نام کاربری" value="{{ form.username.value|default:'' }}" required>
+                    <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                    {% if form.username.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.username.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+                <small class="form-text text-muted">نام کاربری باید بین ۳ تا ۱۵۰ کاراکتر باشد</small>
+            </div>
+            
+            <!-- فیلد ایمیل -->
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                           placeholder="آدرس ایمیل" value="{{ form.email.value|default:'' }}" required>
+                    <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                    {% if form.email.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.email.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- فیلد رمز عبور -->
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="password" name="password1" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" 
+                           placeholder="رمز عبور" required>
+                    <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                    {% if form.password1.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.password1.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- فیلد تکرار رمز عبور -->
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="password" name="password2" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" 
+                           placeholder="تکرار رمز عبور" required>
+                    <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                    {% if form.password2.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.password2.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- راهنمای رمز عبور -->
+            <div class="alert alert-info">
+                <h6><i class="fas fa-info-circle me-2"></i>راهنمای رمز عبور:</h6>
+                <ul class="mb-0 pr-3">
+                    <li>حداقل ۸ کاراکتر</li>
+                    <li>نباید شبیه نام کاربری باشد</li>
+                    <li>نباید فقط از اعداد تشکیل شده باشد</li>
+                </ul>
+            </div>
+            
+            <button class="btn btn-lg btn-outline-primary btn-block" type="submit">
+                <i class="fa fa-user-plus me-2"></i>ایجاد حساب کاربری
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="row kpx_row-sm-offset-3 mt-4">
+    <div class="col-12 text-center">
+        <p class="mb-0">
+            قبلاً حساب دارید؟ 
+            <a href="{% url 'accounts:login' %}" class="font-weight-bold">وارد شوید</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // اعتبارسنجی لحظه‌ای
+    $(document).ready(function() {
+        // اضافه کردن استایل به فیلدهای دارای خطا
+        $('.is-invalid').closest('.input-group').find('.input-group-addon').css({
+            'border-color': '#dc3545',
+            'color': '#dc3545'
+        });
+        
+        // ریموو کردن استایل وقتی کاربر تایپ می‌کند
+        $('input').on('input', function() {
+            if ($(this).hasClass('is-invalid')) {
+                $(this).removeClass('is-invalid');
+                $(this).closest('.input-group').find('.input-group-addon').css({
+                    'border-color': '#e9ecef',
+                    'color': '#495057'
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}
