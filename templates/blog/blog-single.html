@@ -149,79 +149,93 @@
 						{% endfor %}
 					</div>
 					<div class="comment-form">
-						<h4>Leave a Comment</h4>
-						<form method="post" action='{% url "blog:single" pid=post.id %}'>
-							{% csrf_token %}
-							
-							<!-- نمایش خطاهای فرم -->
-							{% if form.errors %}
-							<div class="alert alert-danger">
-								<strong>Please correct the errors below:</strong>
-								<ul>
-								{% for field in form %}
-									{% for error in field.errors %}
-										<li>{{ field.label }}: {{ error }}</li>
+						<div class="comment-form">
+							<h4>Leave a Comment</h4>
+							<form method="post" action='{% url "blog:single" pid=post.id %}'>
+								{% csrf_token %}
+								<input type="hidden" name="post" value="{{ post.id }}">
+								
+								<!-- برای کاربران لاگین شده، فیلدهای name و email را به صورت hidden ارسال کن -->
+								{% if request.user.is_authenticated %}
+									<input type="hidden" name="name" value="{{ request.user.first_name }} {{ request.user.last_name }}">
+									<input type="hidden" name="email" value="{{ request.user.email }}">
+								{% endif %}
+								
+								<!-- نمایش خطاها و پیام‌ها -->
+								{% if form.errors %}
+								<div class="alert alert-danger">
+									<strong>Please correct the errors below:</strong>
+									<ul>
+									{% for field in form %}
+										{% for error in field.errors %}
+											<li>{{ field.label }}: {{ error }}</li>
+										{% endfor %}
 									{% endfor %}
-								{% endfor %}
-								{% for error in form.non_field_errors %}
-									<li>{{ error }}</li>
-								{% endfor %}
-								</ul>
-							</div>
-							{% endif %}
-							
-							<!-- نمایش پیام‌های سیستم -->
-							{% if messages %}
-							<div class="messages">
-								{% for message in messages %}
-								<div class="alert alert-{{ message.tags }}">
-									{{ message }}
+									{% for error in form.non_field_errors %}
+										<li>{{ error }}</li>
+									{% endfor %}
+									</ul>
 								</div>
-								{% endfor %}
-							</div>
-							{% endif %}
-							
-							<!-- فیلد پست به صورت hidden -->
-							{{ form.post }}
-							
-							<div class="form-group form-inline">
-								<div class="form-group col-lg-6 col-md-12 name">
-									{{ form.name }}
-									{% if form.name.errors %}
-									<div class="text-danger">{{ form.name.errors }}</div>
+								{% endif %}
+								
+								{% if messages %}
+								<div class="messages">
+									{% for message in messages %}
+									<div class="alert alert-{{ message.tags }}">
+										{{ message }}
+									</div>
+									{% endfor %}
+								</div>
+								{% endif %}
+								
+								<!-- فقط برای کاربران لاگین نکرده فیلدهای نام و ایمیل نمایش داده شود -->
+								{% if not request.user.is_authenticated %}
+								<div class="form-group form-inline">
+									<div class="form-group col-lg-6 col-md-12 name">
+										{{ form.name }}
+										{% if form.name.errors %}
+										<div class="text-danger">{{ form.name.errors }}</div>
+										{% endif %}
+									</div>
+									<div class="form-group col-lg-6 col-md-12 email">
+										{{ form.email }}
+										{% if form.email.errors %}
+										<div class="text-danger">{{ form.email.errors }}</div>
+										{% endif %}
+									</div>
+								</div>
+								{% endif %}
+								
+								<div class="form-group">
+									{{ form.subject }}
+									{% if form.subject.errors %}
+									<div class="text-danger">{{ form.subject.errors }}</div>
 									{% endif %}
 								</div>
-								<div class="form-group col-lg-6 col-md-12 email">
-									{{ form.email }}
-									{% if form.email.errors %}
-									<div class="text-danger">{{ form.email.errors }}</div>
+								
+								<div class="form-group">
+									{{ form.message }}
+									{% if form.message.errors %}
+									<div class="text-danger">{{ form.message.errors }}</div>
 									{% endif %}
 								</div>
-							</div>
-							<div class="form-group">
-								{{ form.subject }}
-								{% if form.subject.errors %}
-								<div class="text-danger">{{ form.subject.errors }}</div>
+								
+								<!-- فیلد کپچا فقط برای کاربران لاگین نکرده -->
+								{% if not request.user.is_authenticated %}
+								<div class="form-group">
+									<label for="{{ form.captcha.id_for_label }}">Security Code:</label>
+									{{ form.captcha }}
+									{% if form.captcha.errors %}
+									<div class="text-danger">{{ form.captcha.errors }}</div>
+									{% endif %}
+								</div>
 								{% endif %}
-							</div>
-							<div class="form-group">
-								{{ form.message }}
-								{% if form.message.errors %}
-								<div class="text-danger">{{ form.message.errors }}</div>
-								{% endif %}
-							</div>
-							
-							<!-- فیلد کپچا
-							<div class="form-group">
-								{{ form.captcha }}
-								{% if form.captcha.errors %}
-								<div class="text-danger">{{ form.captcha.errors }}</div>
-								{% endif %}
-							</div>
-							 -->
-							<button type="submit" class="primary-btn text-uppercase">Post Comment</button>
-						</form>
-					</div>
+								
+								<button type="submit" class="primary-btn text-uppercase">
+									Post Comment
+								</button>
+							</form>
+						</div>
 				</div>
 					<!--
 					https://disqus.com/

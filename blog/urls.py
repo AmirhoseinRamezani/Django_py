@@ -1,6 +1,7 @@
 from django.urls import path
 from blog.views import *
 from blog.feeds import LatestEntriesFeed, AtomSiteNewsFeed
+from . import views
 
 
 app_name ='blog'
@@ -16,5 +17,5 @@ urlpatterns = [
     path('search/',blog_search,name='search'),
     path('rss/feed/', LatestEntriesFeed(), name='rss_feed'),
     path('atom/feed/', AtomSiteNewsFeed(), name='atom_feed'),
-    
-]
+    path('post/<int:pid>/', views.post_detail, name='single'),
+    ]

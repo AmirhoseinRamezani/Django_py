@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'taggit',
     'django_summernote',
     'website.apps.WebsiteConfig',
-    'blog'
+    'blog',
+    'accounts'
 ]
 # sites framework
 SITE_ID = 2
@@ -211,4 +212,6 @@ INTERNAL_IPS = [
     "localhost",
 ]
 
-
+# برای django-simple-captcha
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
+CAPTCHA_LENGTH = 4
