@@ -34,7 +34,7 @@ EMAIL_FILE_PATH = '/tmp/app-messages'
 # Application definition
 
 INSTALLED_APPS = [
-    'multi_captcha_admin',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -53,7 +53,10 @@ INSTALLED_APPS = [
     'django_summernote',
     'website.apps.WebsiteConfig',
     'blog',
-    'accounts'
+    'accounts',
+    'whitenoise.runserver_nostatic',  # برای serving فایل‌های استاتیک
+    'compressor',  # فشرده‌سازی استاتیک
+    # 'django_ratelimit',
 ]
 # sites framework
 SITE_ID = 2
@@ -115,13 +118,17 @@ MULTI_CAPTCHA_ADMIN = {
 }
 
 MIDDLEWARE = [
+    # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',        
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
+    # 'django.middleware.cache.FetchFromCacheMiddleware',   
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
@@ -156,7 +163,23 @@ DATABASES = {
     }
 }
 
-
+# Caching Configuration
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+#         'LOCATION': 'redis://127.0.0.1:6379/1',
+#         'TIMEOUT': 3600,  # 1 ساعت
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         }
+#     }
+# }
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': 'D:/Django_py/cache',
+    }
+}
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -215,3 +238,32 @@ INTERNAL_IPS = [
 # برای django-simple-captcha
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
 CAPTCHA_LENGTH = 4
+
+# Cache settings
+# CACHE_MIDDLEWARE_SECONDS = 3600
+# CACHE_MIDDLEWARE_ALIAS = 'default'
+# CACHE_MIDDLEWARE_KEY_PREFIX = 'django_py'
+
+# # Security enhancements
+# SECURE_BROWSER_XSS_FILTER = True
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# X_FRAME_OPTIONS = 'DENY'
+# SECURE_REFERRER_POLICY = 'same-origin'
+
+# # Static files compression
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# WHITENOISE_MANIFEST_STRICT = False
+
+# # Django Compressor settings
+# COMPRESS_ENABLED = True
+# COMPRESS_OFFLINE = False
+# STATICFILES_FINDERS = [
+#     'django.contrib.staticfiles.finders.FileSystemFinder',
+#     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+#     'compressor.finders.CompressorFinder',  # برای django-compressor
+# ]
+
+# برای محیط production (فعلاً کامنت شده):
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT = True

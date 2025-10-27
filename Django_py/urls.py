@@ -43,8 +43,18 @@ urlpatterns = [    # path ('url addree', 'view' , name)
     path('', include('blog.urls', namespace='blog_root')),
     path('robots.txt', include('robots.urls')),
     path('captcha/', include('captcha.urls')),
-    path('captcha/', include('captcha.urls')),
+
 ]
+
+# if settings.DEBUG:
+#     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    
+#     # اضافه کردن Debug Toolbar
+#     import debug_toolbar
+#     urlpatterns += [
+#         path('__debug__/', include(debug_toolbar.urls)),
+#     ]
 
 urlpatterns += static(settings.STATIC_URL ,document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL ,document_root=settings.MEDIA_ROOT)

@@ -6,13 +6,13 @@ from django.contrib import messages
 from .models import NewsletterSubscriber
 from django.contrib import sitemaps
 from django.urls import reverse
-from .forms import ContactForm
-from .forms import ContactForm
+from django.views.decorators.cache import never_cache
+
 
 # Create your views here.
 # from django.http import HttpResponse,JsonResponse
 
-
+@never_cache
 def index_view(request):    
     return render(request,'website/index.html')
 

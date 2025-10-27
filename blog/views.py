@@ -1,15 +1,18 @@
 from django.shortcuts import render,get_object_or_404,redirect
-from blog.models import Post,Comment
-from django.db.models import Q
+from blog.models import Post,Comment,Category
+from django.db.models import Q,Count
 from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
 from blog.forms import CommentForm
 from django.contrib import messages
 from django.http import Http404
-
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 
 # Create your views here.
 def blog_view(request, **kwargs):
-    posts = Post.objects.filter(status=True)
+    posts = Post.objects.filter(status=True)\
+        .select_related('author')\
+        .prefetch_related('categories', 'tags', 'comments')
     
     # مدیریت پارامترهای اختیاری
     # استخراج پارامترها از kwargs
@@ -28,7 +31,7 @@ def blog_view(request, **kwargs):
         posts = posts.filter(tags__name=tag_name)
     
     # صفحه‌بندی
-    paginator = Paginator(posts, 3)
+    paginator = Paginator(posts, 6)
     page_number = request.GET.get('page')
     
     try:
@@ -47,30 +50,68 @@ def blog_view(request, **kwargs):
     }
     
     return render(request, 'blog/blog-home.html', context)
-
+@cache_page(60 * 15)
+@vary_on_cookie
+@cache_page(60 * 15)
+@vary_on_cookie
 def blog_single(request, pid):
-    post = get_object_or_404(Post.objects.select_related('author')
+    # پست فعلی
+    post = get_object_or_404(
+        Post.objects.select_related('author')
                     .prefetch_related('categories', 'tags')
                     .filter(status=True), 
         pk=pid
     )
     
-    comments = Comment.objects.filter(post=post, approved=True).order_by('-created_date')
+    # کامنت‌های تأیید شده
+    comments = Comment.objects.filter(post=post, approved=True)\
+        .select_related('post')\
+        .order_by('-created_date')
+    
+    # پست قبلی و بعدی
+    previous_post = Post.objects.filter(
+        status=True, 
+        published_date__lt=post.published_date
+    ).order_by('-published_date').first()
+    
+    next_post = Post.objects.filter(
+        status=True, 
+        published_date__gt=post.published_date
+    ).order_by('published_date').first()
+    
+    # پست‌های مرتبط
+    related_posts = Post.objects.filter(
+        status=True,
+        categories__in=post.categories.all()
+    ).exclude(id=post.id).distinct()[:4]
+    
+    # داده‌های سایدبار
+    latest_posts = Post.objects.filter(status=True).order_by('-published_date')[:5]
+    categories = Category.objects.annotate(post_count=Count('posts')).filter(post_count__gt=0)
     
     if request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
-            # تنظیم خودکار پست برای کامنت
             comment = form.save(commit=False)
             comment.post = post
-            comment.save()
             
+            if request.user.is_authenticated:
+                comment.name = f"{request.user.first_name} {request.user.last_name}".strip()
+                comment.email = request.user.email
+            
+            comment.save()
             messages.success(request, 'Your comment was submitted successfully and is awaiting approval.')
-            form = CommentForm()  # فرم خالی برای نمایش مجدد
+            return redirect('blog:single', pid=pid)
         else:
             messages.error(request, 'There was an error submitting your comment. Please check the form.')
     else:
-        form = CommentForm(initial={'post': post.id})
+        initial = {}
+        if request.user.is_authenticated:
+            initial = {
+                'name': f"{request.user.first_name} {request.user.last_name}".strip(),
+                'email': request.user.email
+            }
+        form = CommentForm(initial=initial)
     
     # افزایش تعداد بازدیدها
     post.counted_views += 1
@@ -79,22 +120,33 @@ def blog_single(request, pid):
     context = {
         'post': post,
         'comments': comments,
-        'form': form
+        'form': form,
+        'previous_post': previous_post,
+        'next_post': next_post,
+        'related_posts': related_posts,
+        'posts': latest_posts,
+        'categories': categories,
     }
     return render(request, 'blog/blog-single.html', context)
 
 def blog_search(request):
-    posts = Post.objects.filter(status=1)
-    query = request.GET.get('s', '')
-    if query:
-        posts = posts.filter(
+    # posts = Post.objects.filter(status=1)
+    query = request.GET.get('s', '').strip()
+    if not query:
+        messages.info(request, 'Please enter a search term.')
+        return redirect('blog:index')
+    posts = Post.objects.filter(status=True)\
+        .select_related('author')\
+        .prefetch_related('categories', 'tags')\
+        .filter(
             Q(title__icontains=query) |
             Q(content__icontains=query) |
             Q(author__username__icontains=query) |
-            Q(categories__name__icontains=query)
-        ).distinct()  # برای جلوگیری از تکرار رکوردها
+            Q(categories__name__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct()
     
-    paginator = Paginator(posts, 3)
+    paginator = Paginator(posts, 6)
     page_number = request.GET.get('page')
     
     try:
@@ -107,15 +159,21 @@ def blog_search(request):
     context = {
             'posts': posts, 
             'query': query,
+            'results_count': posts.paginator.count,
             # 'results_count': posts.count()  # نمایش تعداد نتایج
             }
     return render(request, 'blog/blog-home.html', context)
 
 def blog_category (request ,cat_name):
-    posts = Post.objects.filter(status=1)
-    posts = posts.filter(categories__name=cat_name)
-    context = {'posts':posts}
-    return render(request,'blog/blog-home.html',context)
+    posts = Post.objects.filter(status=True, categories__name=cat_name)\
+        .select_related('author')\
+        .prefetch_related('categories', 'tags')
+    
+    context = {
+        'posts': posts,
+        'current_cat': cat_name
+    }
+    return render(request, 'blog/blog-home.html', context)
 
 def post_detail(request, pid):
     """

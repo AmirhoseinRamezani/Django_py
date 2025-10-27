@@ -3,285 +3,336 @@
 {% load humanize %}
 {% load blog-tags %}
 
-
 {% block content %}
 
-	<!-- start banner Area -->
-	<section class="relative about-banner">
-		<div class="overlay overlay-bg"></div>
-		<div class="container">
-			<div class="row d-flex align-items-center justify-content-center">
-				<div class="about-content col-lg-12">
-					<h1 class="text-white">
-						{{post.title}}
-					</h1>
-					<p class="text-white link-nav"><a href="{% url 'website:index' %}">Home </a> <span
-							class="lnr lnr-arrow-right"></span><a href="{% url 'blog:index' %}">Blog </a> <span
-							class="lnr lnr-arrow-right"></span>{{post.title}}
-					</p>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- End banner Area -->
+<!-- start banner Area -->
+<section class="relative about-banner">
+    <div class="overlay overlay-bg"></div>
+    <div class="container">
+        <div class="row d-flex align-items-center justify-content-center">
+            <div class="about-content col-lg-12">
+                <h1 class="text-white">
+                    {{ post.title }}
+                </h1>
+                <p class="text-white link-nav">
+                    <a href="{% url 'website:index' %}">Home</a> 
+                    <span class="lnr lnr-arrow-right"></span>
+                    <a href="{% url 'blog:index' %}">Blog</a> 
+                    <span class="lnr lnr-arrow-right"></span>
+                    {{ post.title }}
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End banner Area -->
 
-	<!-- Start post-content Area -->
-	<section class="post-content-area single-post-area">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-8 posts-list">
-					<div class="single-post row">
-						<div class="col-lg-12">
-							<div class="feature-img">
-								<img class="img-fluid" src="{{post.image.url}}" alt="">
-							</div>
-						</div>
-						<div class="col-lg-12 col-md-3 meta-details">
-							<!-- <ul class="tags">
-								{% for cat in post.categories.all %}
-									<li><a href="#">{{cat.name}}</a> {% if not forloop.last %}, {% endif %}</li>
-								{% endfor %}
-							</ul> -->
-							<div class="user-details row">
-								<p class="user-name col-lg-3 col-sm-6"><a href="#">{{ post.author.get_full_name }}</a> <span
-										class="lnr lnr-user"></span></p>
-								<p class="date col-lg-3 col-sm-6"><a href="#">{{ post.published_date|date:"d M Y" }} </a> <span
-										class="lnr lnr-calendar-full"></span></p>
-								<p class="view col-lg-3 col-sm-6"><a href="#">{{post.counted_views}} Views</a> <span
-										class="lnr lnr-eye"></span></p>
-								<p class="comments col-lg-3 col-sm-6"><a href="#">{{ comments.count }} Comments</a> <span
-										class="lnr lnr-bubble"></span></p>
-							</div>
-							<hr>
-						</div>
-						<div class="col-lg-9 col-md-9">
-							<h3 class="mt-20 mb-20">{{post.title}}</h3>
-							<p class="excert">
-								{{post.content |safe}}
-							</p>
-						</div>	
-					</div>
-					<div>
-						<ul>
-							<p><li><ul class="social-links col-lg-3 col-sm-6">
-									<li><a href="#"><i class="fa fa-facebook"></i></a></li>
-									<li><a href="#"><i class="fa fa-twitter"></i></a></li>
-									<li><a href="#"><i class="fa fa-github"></i></a></li>
-									<li><a href="#"><i class="fa fa-behance"></i></a></li>
-							</ul></li></p>
-							
-							<li><ul class="tags list-inline mb-0">
-							{% for cat in post.categories.all %}
-								<li class="list-inline-item">
-									<a class=" btn-outline-secondary btn-sm" href="#">
-										{{cat.name}}
-									</a>
-								</li>
-							{% endfor %}
-							</ul></li>
-							
-						</ul>
+<!-- Start post-content Area -->
+<section class="post-content-area single-post-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 posts-list">
+                <!-- پست اصلی -->
+                <div class="single-post row">
+                    <div class="col-lg-12">
+                        <div class="feature-img">
+                            <img class="img-fluid" src="{{ post.image.url }}" alt="{{ post.title }}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-12 col-md-12 meta-details">
+                        <div class="user-details row">
+                            <p class="user-name col-lg-3 col-md-6 col-sm-6">
+                                <a href="{% url 'blog:author' author_username=post.author.username %}">
+                                    {{ post.author.get_full_name|default:post.author.username }}
+                                </a>
+                                <span class="lnr lnr-user"></span>
+                            </p>
+                            <p class="date col-lg-3 col-md-6 col-sm-6">
+                                <a href="#">{{ post.published_date|date:"d M Y" }}</a>
+                                <span class="lnr lnr-calendar-full"></span>
+                            </p>
+                            <p class="view col-lg-3 col-md-6 col-sm-6">
+                                <a href="#">{{ post.counted_views }} Views</a>
+                                <span class="lnr lnr-eye"></span>
+                            </p>
+                            <p class="comments col-lg-3 col-md-6 col-sm-6">
+                                <a href="#comments-section">{{ comments.count }} Comments</a>
+                                <span class="lnr lnr-bubble"></span>
+                            </p>
+                        </div>
+                        <hr>
+                    </div>
+                    
+                    <div class="col-lg-12">
+                        <h1 class="mt-20 mb-20">{{ post.title }}</h1>
+                        
+                        <!-- دسته‌بندی‌ها -->
 						
-					</div>
-					<div class="navigation-area">
-						<div class="row">
-							<div
-								class="col-lg-6 col-md-6 col-12 nav-left flex-row d-flex justify-content-start align-items-center">
-								<div class="thumb">
-									<a href="#"><img class="img-fluid" src="{% static 'img/blog/prev.jpg' %}"
-											alt=""></a>
-								</div>
-								<div class="arrow">
-									<a href="#"><span class="lnr text-white lnr-arrow-left"></span></a>
-								</div>
-								<div class="detials">
-									<p>Prev Post</p>
-									<a href="#">
-										<h4>Space The Final Frontier</h4>
-									</a>
-								</div>
-							</div>
-							<div
-								class="col-lg-6 col-md-6 col-12 nav-right flex-row d-flex justify-content-end align-items-center">
-								<div class="detials">
-									<p>Next Post</p>
-									<a href="#">
-										<h4>Telescopes 101</h4>
-									</a>
-								</div>
-								<div class="arrow">
-									<a href="#"><span class="lnr text-white lnr-arrow-right"></span></a>
-								</div>
-								<div class="thumb">
-									<a href="#"><img class="img-fluid" src="{% static 'img/blog/next.jpg' %}"
-											alt=""></a>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-					<div class="comments-area">
-						<h4>{{ comments.count }} Comments</h4>
-						{% for comment in comments %}
-						<div class="comment-list">
-							<div class="single-comment justify-content-between d-flex">
-								<div class="user justify-content-between d-flex">
-									<div class="thumb">
-										<img src="{% static 'img/blog/c1.jpg' %}" alt="">
-									</div>
-									<div class="desc">
-										<h5><a href="#">{{ comment.name }}</a></h5>
-										<p class="date">{{ comment.created_date|naturalday }}</p>
-										<p class="comment">
-											{{ comment.message }}
-										</p>
-									</div>
-								</div>
-								<!-- <div class="reply-btn">
-									<a href="" class="btn-reply text-uppercase">reply</a>
-								</div> -->
-							</div>
-						</div>
-						{% empty %}  <!-- اگر کامنتی نبود -->
-						<div class="alert ">
-							There are no comments for this post yet.
-						</div>
-						{% endfor %}
-					</div>
-					<div class="comment-form">
-						<div class="comment-form">
-							<h4>Leave a Comment</h4>
-							<form method="post" action='{% url "blog:single" pid=post.id %}'>
-								{% csrf_token %}
-								<input type="hidden" name="post" value="{{ post.id }}">
-								
-								<!-- برای کاربران لاگین شده، فیلدهای name و email را به صورت hidden ارسال کن -->
-								{% if request.user.is_authenticated %}
-									<input type="hidden" name="name" value="{{ request.user.first_name }} {{ request.user.last_name }}">
-									<input type="hidden" name="email" value="{{ request.user.email }}">
-								{% endif %}
-								
-								<!-- نمایش خطاها و پیام‌ها -->
-								{% if form.errors %}
-								<div class="alert alert-danger">
-									<strong>Please correct the errors below:</strong>
-									<ul>
-									{% for field in form %}
-										{% for error in field.errors %}
-											<li>{{ field.label }}: {{ error }}</li>
-										{% endfor %}
-									{% endfor %}
-									{% for error in form.non_field_errors %}
-										<li>{{ error }}</li>
-									{% endfor %}
-									</ul>
-								</div>
-								{% endif %}
-								
-								{% if messages %}
-								<div class="messages">
-									{% for message in messages %}
-									<div class="alert alert-{{ message.tags }}">
-										{{ message }}
-									</div>
-									{% endfor %}
-								</div>
-								{% endif %}
-								
-								<!-- فقط برای کاربران لاگین نکرده فیلدهای نام و ایمیل نمایش داده شود -->
-								{% if not request.user.is_authenticated %}
-								<div class="form-group form-inline">
-									<div class="form-group col-lg-6 col-md-12 name">
-										{{ form.name }}
-										{% if form.name.errors %}
-										<div class="text-danger">{{ form.name.errors }}</div>
-										{% endif %}
-									</div>
-									<div class="form-group col-lg-6 col-md-12 email">
-										{{ form.email }}
-										{% if form.email.errors %}
-										<div class="text-danger">{{ form.email.errors }}</div>
-										{% endif %}
-									</div>
-								</div>
-								{% endif %}
-								
-								<div class="form-group">
-									{{ form.subject }}
-									{% if form.subject.errors %}
-									<div class="text-danger">{{ form.subject.errors }}</div>
-									{% endif %}
-								</div>
-								
-								<div class="form-group">
-									{{ form.message }}
-									{% if form.message.errors %}
-									<div class="text-danger">{{ form.message.errors }}</div>
-									{% endif %}
-								</div>
-								
-								<!-- فیلد کپچا فقط برای کاربران لاگین نکرده -->
-								{% if not request.user.is_authenticated %}
-								<div class="form-group">
-									<label for="{{ form.captcha.id_for_label }}">Security Code:</label>
-									{{ form.captcha }}
-									{% if form.captcha.errors %}
-									<div class="text-danger">{{ form.captcha.errors }}</div>
-									{% endif %}
-								</div>
-								{% endif %}
-								
-								<button type="submit" class="primary-btn text-uppercase">
-									Post Comment
-								</button>
-							</form>
-						</div>
-				</div>
-					<!--
-					https://disqus.com/
-					<div class="comments-area">
-						<div id="disqus_thread"></div>
-							<script>
-								/**
-								*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-								*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
-								/*
-								var disqus_config = function () {
-								this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
-								this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-								};
-								*/
-								(function() { // DON'T EDIT BELOW THIS LINE
-								var d = document, s = d.createElement('script');
-								s.src = 'https://django-py-1.disqus.com/embed.js';
-								s.setAttribute('data-timestamp', +new Date());
-								(d.head || d.body).appendChild(s);
-								})();
-							</script>
-							<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-					</div>-->
-				
-				<div class="col-lg-4 sidebar-widgets">
-					<div class="widget-wrap">
+ 
+                    	
+                        <!-- محتوای پست -->
+                        <div class="post-content">
+                            {{ post.content|safe }}
+                        </div>
+                        
+                        <!-- تگ‌ها -->
+                        <div class="post-tags mt-4">
+                            <strong>category:</strong>
+                            <!-- {% for tag in post.tags.all %}
+                            <a href="{% url 'blog:tag' tag_name=tag.name %}" class="tag-link">
+                                #{{ tag.name }}
+                            </a>{% if not forloop.last %}, {% endif %}
+                            {% endfor %} -->
+							<div class="post-categories mb-4">
+                            <ul class="tags list-inline">
+                                {% for cat in post.categories.all %}
+                                <li class="list-inline-item">
+                                    <a href="{% url 'blog:category' cat_name=cat.name %}" 
+                                       class="btn btn-outline-secondary btn-sm">
+                                        {{ cat.name }}
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        	</div>
+                        </div>
+                        
+                        <!-- اشتراک‌گذاری -->
+                        <div class="social-share mt-4">
+                            <ul class="social-links">
+                                <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                                <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+                                <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
+                                <li><a href="#"><i class="fa fa-whatsapp"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
 
-						{% include 'blog/blog-search.html' %}
-						
-						{% include 'blog/blog-writer.html' %}
-				
-						{% latestposts %}
-						
-						{% include 'blog/blog-tags.html' %}
-						
-						{% include 'blog/blog-newsletter.html' %}
-						
-						{% include 'blog/blog-ads.html' %}
+                <!-- ناوبری بین پست‌ها -->
+                <div class="navigation-area">
+                    <div class="row">
+                        <!-- پست قبلی -->
+                        <div class="col-lg-6 col-md-6 col-12 nav-left flex-row d-flex justify-content-start align-items-center">
+                            {% if previous_post %}
+                            <div class="thumb">
+                                <a href="{% url 'blog:single' pid=previous_post.id %}">
+                                    <img class="img-fluid" src="{{ previous_post.image.url }}" alt="{{ previous_post.title }}">
+                                </a>
+                            </div>
+                            <div class="arrow">
+                                <a href="{% url 'blog:single' pid=previous_post.id %}">
+                                    <span class="lnr text-white lnr-arrow-left"></span>
+                                </a>
+                            </div>
+                            <div class="detials">
+                                <p>Prev Post</p>
+                                <a href="{% url 'blog:single' pid=previous_post.id %}">
+                                    <h4>{{ previous_post.title }}</h4>
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- پست بعدی -->
+                        <div class="col-lg-6 col-md-6 col-12 nav-right flex-row d-flex justify-content-end align-items-center">
+                            {% if next_post %}
+                            <div class="detials">
+                                <p>Next Post</p>
+                                <a href="{% url 'blog:single' pid=next_post.id %}">
+                                    <h4>{{ next_post.title }}</h4>
+                                </a>
+                            </div>
+                            <div class="arrow">
+                                <a href="{% url 'blog:single' pid=next_post.id %}">
+                                    <span class="lnr text-white lnr-arrow-right"></span>
+                                </a>
+                            </div>
+                            <div class="thumb">
+                                <a href="{% url 'blog:single' pid=next_post.id %}">
+                                    <img class="img-fluid" src="{{ next_post.image.url }}" alt="{{ next_post.title }}">
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
 
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- End post-content Area -->
-	{% endblock %}
+                <!-- پست‌های مرتبط -->
+                {% if related_posts %}
+                <div class="related-posts-area mt-5">
+                    <h3 class="mb-4">Related Posts</h3>
+                    <div class="row">
+                        {% for related_post in related_posts %}
+                        <div class="col-lg-6 col-md-6">
+                            <div class="single-related-post d-flex flex-row">
+                                <div class="thumb">
+                                    <img src="{{ related_post.image.url }}" alt="{{ related_post.title }}" width="100">
+                                </div>
+                                <div class="details ml-3">
+                                    <a href="{% url 'blog:single' pid=related_post.id %}">
+                                        <h6>{{ related_post.title }}</h6>
+                                    </a>
+                                    <p>{{ related_post.published_date|naturaltime }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
 
-	
+                <!-- بخش نظرات -->
+                <div class="comments-area mt-5" id="comments-section">
+                    <h4>{{ comments.count }} Comments</h4>
+                    
+                    {% for comment in comments %}
+                    <div class="comment-list">
+                        <div class="single-comment justify-content-between d-flex">
+                            <div class="user justify-content-between d-flex">
+                                <div class="thumb">
+                                    <img src="{% static 'img/blog/c1.jpg' %}" alt="{{ comment.name }}">
+                                </div>
+                                <div class="desc">
+                                    <h5>
+                                        <a href="#">{{ comment.name }}</a>
+                                        {% if comment.approved %}
+                                        <small class="text-success">✓ Approved</small>
+                                        {% endif %}
+                                    </h5>
+                                    <p class="date">{{ comment.created_date|naturalday }}</p>
+                                    <p class="comment">
+                                        {{ comment.message }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle"></i>
+                        There are no comments for this post yet. Be the first to comment!
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- فرم ارسال نظر -->
+                <div class="comment-form mt-5">
+                    <h4>Leave a Comment</h4>
+                    <form method="post" action="{% url 'blog:single' pid=post.id %}#comments-section">
+                        {% csrf_token %}
+                        <input type="hidden" name="post" value="{{ post.id }}">
+                        
+                        <!-- نمایش پیام‌ها -->
+                        {% if messages %}
+                        <div class="messages mb-4">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- نمایش خطاهای فرم -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Please correct the errors below:</strong>
+                            <ul>
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <!-- فیلدهای نام و ایمیل (فقط برای کاربران لاگین نکرده) -->
+                        {% if not request.user.is_authenticated %}
+                        <div class="form-group form-inline">
+                            <div class="form-group col-lg-6 col-md-12 name">
+                                <input type="text" name="name" class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                                       placeholder="Your Name" value="{{ form.name.value|default:'' }}" required>
+                                {% if form.name.errors %}
+                                <div class="invalid-feedback">{{ form.name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group col-lg-6 col-md-12 email">
+                                <input type="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                                       placeholder="Email Address" value="{{ form.email.value|default:'' }}" required>
+                                {% if form.email.errors %}
+                                <div class="invalid-feedback">{{ form.email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <input type="hidden" name="name" value="{{ request.user.get_full_name|default:request.user.username }}">
+                        <input type="hidden" name="email" value="{{ request.user.email }}">
+                        <p class="text-info">
+                            <i class="fa fa-user"></i>
+                            Commenting as: {{ request.user.get_full_name|default:request.user.username }}
+                        </p>
+                        {% endif %}
+
+                        <!-- فیلد موضوع -->
+                        <div class="form-group">
+                            <input type="text" name="subject" class="form-control {% if form.subject.errors %}is-invalid{% endif %}" 
+                                   placeholder="Subject" value="{{ form.subject.value|default:'' }}" required>
+                            {% if form.subject.errors %}
+                            <div class="invalid-feedback">{{ form.subject.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- فیلد پیام -->
+                        <div class="form-group">
+                            <textarea name="message" class="form-control {% if form.message.errors %}is-invalid{% endif %}" 
+                                      placeholder="Your Message" rows="6" required>{{ form.message.value|default:'' }}</textarea>
+                            {% if form.message.errors %}
+                            <div class="invalid-feedback">{{ form.message.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- فیلد کپچا (فقط برای کاربران لاگین نکرده) -->
+                        {% if not request.user.is_authenticated %}
+                        <div class="form-group">
+                            <label class="d-block mb-2">Security Code:</label>
+                            {{ form.captcha }}
+                            {% if form.captcha.errors %}
+                            <div class="text-danger small mt-1">{{ form.captcha.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <button type="submit" class="primary-btn text-uppercase">
+                            <i class="fa fa-paper-plane"></i> Post Comment
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- سایدبار -->
+            <div class="col-lg-4 sidebar-widgets">
+                <div class="widget-wrap">
+                    {% include 'blog/blog-search.html' %}
+                    {% include 'blog/blog-writer.html' %}
+                    {% latestposts %}
+                    {% postcategories %}
+                    {% include 'blog/blog-tags.html' %}
+                    {% include 'blog/blog-newsletter.html' %}
+                    {% include 'blog/blog-ads.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End post-content Area -->
+
+{% endblock %}

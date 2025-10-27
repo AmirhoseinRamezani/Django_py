@@ -14,7 +14,8 @@ class Category(models.Model):
     
     def __str__(self):
         return self.name
-    
+    def get_absolute_url(self):
+        return reverse('blog:category', kwargs={'cat_name': self.name})
 # مدل میانی سفارشی برای تگ‌ها
 class TaggedPost(TaggedItemBase):
     content_object = models.ForeignKey('Post', on_delete=models.CASCADE)
@@ -38,6 +39,10 @@ class Post(models.Model):
     class Meta:
         ordering = ['-created_date']
         verbose_name_plural = 'پست ها'
+        indexes = [
+            models.Index(fields=['status', 'published_date']),
+            models.Index(fields=['author', 'created_date']),
+        ]
     def __str__(self):
         return "{} - {}".format(self.title,self.id)
     
@@ -68,6 +73,16 @@ class Post(models.Model):
         """تعداد کامنت‌های تأیید شده پست"""
         return self.comments.filter(approved=True).count()
     
+    @classmethod
+    def get_featured_posts(cls, limit=5):
+        """پست‌های ویژه با بیشترین بازدید"""
+        return cls.objects.filter(status=True).order_by('-counted_views')[:limit]
+    
+    @classmethod
+    def get_recent_posts(cls, limit=5):
+        """آخرین پست‌ها"""
+        return cls.objects.filter(status=True).order_by('-published_date')[:limit]
+
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments', verbose_name='پست')
     name = models.CharField(max_length=255, verbose_name='نام')
