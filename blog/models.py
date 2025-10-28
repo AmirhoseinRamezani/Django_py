@@ -92,6 +92,15 @@ class Comment(models.Model):
     approved = models.BooleanField(default=False, verbose_name='تأیید شده')
     created_date = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
     updated_date = models.DateTimeField(auto_now=True, verbose_name='تاریخ بروزرسانی')
+    
+    # اضافه کردن فیلد user (اختیاری)
+    user = models.ForeignKey(
+        'auth.User', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        verbose_name='کاربر'
+    )
 
     class Meta:
         ordering = ['-created_date']
@@ -110,3 +119,19 @@ class Comment(models.Model):
             return self.message[:50] + "..."
         return self.message
     
+    def get_user_profile_image(self):
+        """دریافت تصویر پروفایل کاربر"""
+        try:
+            if self.user and hasattr(self.user, 'profile'):
+                if self.user.profile.profile_image:
+                    return self.user.profile.profile_image.url
+        except Exception as e:
+            print(f"Error in get_user_profile_image: {e}")
+        return None
+    
+    def has_user_profile_image(self):
+        """بررسی وجود تصویر پروفایل برای کاربر"""
+        try:
+            return bool(self.get_user_profile_image())
+        except:
+            return False

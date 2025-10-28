@@ -59,15 +59,15 @@
                             </p>
                             <p class="date col-lg-3 col-md-6 col-sm-6">
                                 <span class="lnr lnr-calendar-full mr-2"></span>
-                                عضویت: {{ profile_user.date_joined|date:"d M Y" }}
+                               {{ profile_user.date_joined|date:"d M Y" }} : عضویت
                             </p>
                             <p class="view col-lg-3 col-md-6 col-sm-6">
                                 <span class="lnr lnr-eye mr-2"></span>
-                                {{ total_views|default:0 }} بازدید
+                                {{ total_views|default:0 }} : بازدید
                             </p>
                             <p class="comments col-lg-3 col-md-6 col-sm-6">
                                 <span class="lnr lnr-bubble mr-2"></span>
-                                {{ user_posts_count|default:0 }} پست
+                                {{ user_posts_count|default:0 }} : پست
                             </p>
                         </div>
                         <hr>

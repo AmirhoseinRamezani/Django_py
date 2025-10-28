@@ -39,77 +39,191 @@ def blog_view(request):
 
 def blog_single(request, pid):
     """صفحه تک پست"""
-    post = get_object_or_404(
-        Post.objects.select_related('author')
-                    .prefetch_related('categories', 'tags')
-                    .filter(status=True), 
-        pk=pid
-    )
-    
-    # افزایش تعداد بازدیدها
-    post.counted_views += 1
-    post.save(update_fields=['counted_views'])
-    
-    # کامنت‌های تأیید شده
-    comments = Comment.objects.filter(post=post, approved=True)\
-        .select_related('post')\
-        .order_by('-created_date')
-    
-    # پست قبلی و بعدی
-    previous_post = Post.objects.filter(
-        status=True, 
-        published_date__lt=post.published_date
-    ).order_by('-published_date').first()
-    
-    next_post = Post.objects.filter(
-        status=True, 
-        published_date__gt=post.published_date
-    ).order_by('published_date').first()
-    
-    # پست‌های مرتبط
-    related_posts = Post.objects.filter(
-        status=True,
-        categories__in=post.categories.all()
-    ).exclude(id=post.id).distinct()[:4]
-    
-    # مدیریت فرم کامنت
-    if request.method == 'POST':
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.post = post
-            
-            if request.user.is_authenticated:
-                comment.name = f"{request.user.first_name} {request.user.last_name}".strip()
-                comment.email = request.user.email
-            
-            comment.save()
-            messages.success(request, 'نظر شما با موفقیت ثبت شد و در انتظار تایید است.')
-            return redirect('blog:single', pid=pid)
+    try:
+        post = get_object_or_404(
+            Post.objects.select_related('author')
+                        .prefetch_related('categories', 'tags')
+                        .filter(status=True), 
+            pk=pid
+        )
+        
+        # افزایش تعداد بازدیدها
+        post.counted_views += 1
+        post.save(update_fields=['counted_views'])
+        
+        # کامنت‌های تأیید شده - شامل اطلاعات کاربر و پروفایل
+        comments = Comment.objects.filter(post=post, approved=True)\
+            .select_related('post', 'user', 'user__profile')\
+            .order_by('-created_date')
+        
+        # دیباگ - چک کردن اطلاعات کامنت‌ها
+        print(f"=== DEBUG COMMENT INFO ===")
+        print(f"تعداد کامنت‌ها: {comments.count()}")
+        for i, comment in enumerate(comments):
+            print(f"کامنت #{i+1}:")
+            print(f"  - نام: {comment.name}")
+            print(f"  - کاربر: {comment.user}")
+            if comment.user:
+                print(f"  - پروفایل کاربر: {hasattr(comment.user, 'profile')}")
+                if hasattr(comment.user, 'profile'):
+                    print(f"  - تصویر پروفایل: {comment.user.profile.profile_image}")
+                    print(f"  - URL تصویر: {comment.user.profile.profile_image.url if comment.user.profile.profile_image else 'None'}")
+            print("---")
+        print(f"=== END DEBUG ===")
+        
+        # پست قبلی و بعدی
+        previous_post = Post.objects.filter(
+            status=True, 
+            published_date__lt=post.published_date
+        ).order_by('-published_date').first()
+        
+        next_post = Post.objects.filter(
+            status=True, 
+            published_date__gt=post.published_date
+        ).order_by('published_date').first()
+        
+        # پست‌های مرتبط
+        related_posts = Post.objects.filter(
+            status=True,
+            categories__in=post.categories.all()
+        ).exclude(id=post.id).distinct()[:4]
+        
+        # مدیریت فرم کامنت
+        if request.method == 'POST':
+            form = CommentForm(request.POST, user=request.user)
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.post = post
+                
+                if request.user.is_authenticated:
+                    # استفاده از نام کامل از پروفایل اگر موجود باشد
+                    full_name = f"{request.user.first_name} {request.user.last_name}".strip()
+                    if not full_name and hasattr(request.user, 'profile'):
+                        full_name = request.user.profile.display_name
+                    
+                    comment.name = full_name or request.user.username
+                    comment.email = request.user.email
+                    comment.user = request.user  # ذخیره کاربر در نظر
+                    print(f"✅ کامنت با کاربر ذخیره شد: {request.user.username}")
+                else:
+                    print(f"ℹ️ کامنت مهمان ذخیره شد: {comment.name}")
+                
+                comment.save()
+                messages.success(request, 'نظر شما با موفقیت ثبت شد و در انتظار تایید است.')
+                return redirect('blog:single', pid=pid)
+            else:
+                messages.error(request, 'خطا در ارسال نظر. لطفا فرم را بررسی کنید.')
         else:
-            messages.error(request, 'خطا در ارسال نظر. لطفا فرم را بررسی کنید.')
-    else:
-        initial = {}
-        if request.user.is_authenticated:
-            initial = {
-                'name': f"{request.user.first_name} {request.user.last_name}".strip(),
-                'email': request.user.email
-            }
-        form = CommentForm(initial=initial)
+            initial = {}
+            if request.user.is_authenticated:
+                full_name = f"{request.user.first_name} {request.user.last_name}".strip()
+                if not full_name and hasattr(request.user, 'profile'):
+                    full_name = request.user.profile.display_name
+                
+                initial = {
+                    'name': full_name or request.user.username,
+                    'email': request.user.email
+                }
+            form = CommentForm(initial=initial, user=request.user)
+        
+        # پروفایل نویسنده این پست
+        profile_user = post.author
+        
+        context = {
+            'post': post,
+            'comments': comments,
+            'form': form,
+            'previous_post': previous_post,
+            'next_post': next_post,
+            'related_posts': related_posts,
+            'profile_user': profile_user,
+        }
+        return render(request, 'blog/blog-single.html', context)
     
-    # پروفایل نویسنده این پست - این خط مهمه!
-    profile_user = post.author
+    except Exception as e:
+        # لاگ کردن خطا برای دیباگ
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in blog_single view: {str(e)}")
+        
+        # نمایش صفحه 404 در صورت خطا
+        return render(request, '404.html', status=404)
+        
+        
+        # پست قبلی و بعدی
+        previous_post = Post.objects.filter(
+            status=True, 
+            published_date__lt=post.published_date
+        ).order_by('-published_date').first()
+        
+        next_post = Post.objects.filter(
+            status=True, 
+            published_date__gt=post.published_date
+        ).order_by('published_date').first()
+        
+        # پست‌های مرتبط
+        related_posts = Post.objects.filter(
+            status=True,
+            categories__in=post.categories.all()
+        ).exclude(id=post.id).distinct()[:4]
+        
+        # مدیریت فرم کامنت
+        if request.method == 'POST':
+            form = CommentForm(request.POST, user=request.user)
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.post = post
+                
+                if request.user.is_authenticated:
+                    # استفاده از نام کامل از پروفایل اگر موجود باشد
+                    full_name = f"{request.user.first_name} {request.user.last_name}".strip()
+                    if not full_name and hasattr(request.user, 'profile'):
+                        full_name = request.user.profile.display_name
+                    
+                    comment.name = full_name or request.user.username
+                    comment.email = request.user.email
+                    comment.user = request.user  # ذخیره کاربر در نظر
+                
+                comment.save()
+                messages.success(request, 'نظر شما با موفقیت ثبت شد و در انتظار تایید است.')
+                return redirect('blog:single', pid=pid)
+            else:
+                messages.error(request, 'خطا در ارسال نظر. لطفا فرم را بررسی کنید.')
+        else:
+            initial = {}
+            if request.user.is_authenticated:
+                full_name = f"{request.user.first_name} {request.user.last_name}".strip()
+                if not full_name and hasattr(request.user, 'profile'):
+                    full_name = request.user.profile.display_name
+                
+                initial = {
+                    'name': full_name or request.user.username,
+                    'email': request.user.email
+                }
+            form = CommentForm(initial=initial, user=request.user)
+        
+        # پروفایل نویسنده این پست
+        profile_user = post.author
+        
+        context = {
+            'post': post,
+            'comments': comments,
+            'form': form,
+            'previous_post': previous_post,
+            'next_post': next_post,
+            'related_posts': related_posts,
+            'profile_user': profile_user,
+        }
+        return render(request, 'blog/blog-single.html', context)
     
-    context = {
-        'post': post,
-        'comments': comments,
-        'form': form,
-        'previous_post': previous_post,
-        'next_post': next_post,
-        'related_posts': related_posts,
-        'profile_user': profile_user,  # اضافه کردن پروفایل نویسنده
-    }
-    return render(request, 'blog/blog-single.html', context)
+    except Exception as e:
+        # لاگ کردن خطا برای دیباگ
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in blog_single view: {str(e)}")
+        
+        # نمایش صفحه 404 در صورت خطا
+        return render(request, '404.html', status=404)
 
 def blog_search(request):
     """جستجو در بلاگ"""

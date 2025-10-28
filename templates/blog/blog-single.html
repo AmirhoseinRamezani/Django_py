@@ -72,11 +72,7 @@
                     
                     <div class="col-lg-12">
                         <h1 class="mt-20 mb-20">{{ post.title }}</h1>
-                        
-                        <!-- دسته‌بندی‌ها -->
-						
- 
-                    	
+
                         <!-- محتوای پست -->
                         <div class="post-content">
                             {{ post.content|safe }}
@@ -188,40 +184,96 @@
                     </div>
                 </div>
                 {% endif %}
-
+				<!-- دیباگ اطلاعات کامنت‌ها -->
+				<div class="debug-info" style="background: #f8f9fa; padding: 15px; margin: 10px 0; border: 1px solid #ddd;">
+					<h5>اطلاعات دیباگ کامنت‌ها:</h5>
+					{% for comment in comments %}
+					<div style="margin: 10px 0; padding: 10px; border: 1px solid #ccc;">
+						<strong>کامنت #{{ forloop.counter }}:</strong><br>
+						- نام: {{ comment.name }}<br>
+						- کاربر: {{ comment.user }}<br>
+						- کاربر لاگین کرده: {% if comment.user %}بله{% else %}خیر{% endif %}<br>
+						- پروفایل کاربر: {% if comment.user and comment.user.profile %}{{ comment.user.profile }}{% else %}ندارد{% endif %}<br>
+						- تصویر پروفایل: {% if comment.user and comment.user.profile and comment.user.profile.profile_image %}{{ comment.user.profile.profile_image.url }}{% else %}ندارد{% endif %}<br>
+						- has_user_profile_image: {{ comment.has_user_profile_image }}<br>
+						- get_user_profile_image: {{ comment.get_user_profile_image }}<br>
+					</div>
+					{% empty %}
+					<p>هیچ کامنتی برای نمایش وجود ندارد</p>
+					{% endfor %}
+				</div>
                 <!-- بخش نظرات -->
-                <div class="comments-area mt-5" id="comments-section">
-                    <h4>{{ comments.count }} Comments</h4>
-                    
-                    {% for comment in comments %}
-                    <div class="comment-list">
-                        <div class="single-comment justify-content-between d-flex">
-                            <div class="user justify-content-between d-flex">
-                                <div class="thumb">
-                                    <img src="{% static 'img/blog/c1.jpg' %}" alt="{{ comment.name }}">
-                                </div>
-                                <div class="desc">
-                                    <h5>
-                                        <a href="#">{{ comment.name }}</a>
-                                        {% if comment.approved %}
-                                        <small class="text-success">✓ Approved</small>
-                                        {% endif %}
-                                    </h5>
-                                    <p class="date">{{ comment.created_date|naturalday }}</p>
-                                    <p class="comment">
-                                        {{ comment.message }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="alert alert-info">
-                        <i class="fa fa-info-circle"></i>
-                        There are no comments for this post yet. Be the first to comment!
-                    </div>
-                    {% endfor %}
-                </div>
+				<div class="comments-area mt-5" id="comments-section">
+					<h4>{{ comments.count }} Comments</h4>
+					
+					{% for comment in comments %}
+					<div class="comment-list">
+						<div class="single-comment justify-content-between d-flex">
+							<div class="user justify-content-between d-flex">
+								<div class="thumb">
+									{% if comment.user and comment.has_user_profile_image %}
+										<!-- اگر کاربر لاگین کرده و تصویر پروفایل دارد -->
+										<img src="{{ comment.get_user_profile_image }}" alt="{{ comment.name }}" 
+											class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover;">
+									{% elif comment.user %}
+										<!-- اگر کاربر لاگین کرده اما تصویر پروفایل ندارد -->
+										<img src="{% static 'img/blog/default-avatar.jpg' %}" alt="{{ comment.name }}" 
+											class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover;">
+									{% else %}
+										<!-- اگر کاربر مهمان است -->
+										<img src="{% static 'img/blog/c1.jpg' %}" alt="{{ comment.name }}">
+									{% endif %}
+								</div>
+								<div class="desc">
+									<h5>
+										<a href="#">
+											{% if comment.user %}
+												{{ comment.user.get_full_name|default:comment.user.username }}
+											{% else %}
+												{{ comment.name }}
+											{% endif %}
+										</a>
+										{% if comment.approved %}
+										<small class="text-success">✓ Approved</small>
+										{% endif %}
+										{% if comment.user %}
+										<small class="text-muted">
+											<i class="fa fa-user-check"></i> Registered User
+										</small>
+										{% endif %}
+									</h5>
+									<p class="date">
+										<i class="fa fa-clock-o"></i> {{ comment.created_date|naturalday }}
+										{% if comment.user and comment.user.profile.user_level == 'writer' %}
+										<span class="badge badge-warning ml-2">
+											<i class="fa fa-pencil"></i> Writer
+										</span>
+										{% endif %}
+									</p>
+									
+									<!-- نمایش موضوع نظر -->
+									{% if comment.subject %}
+									<div class="comment-subject mb-2">
+										<strong class="text-muted">
+											<i class="fa fa-tag"></i> موضوع: {{ comment.subject }}
+										</strong>
+									</div>
+									{% endif %}
+									
+									<div class="comment-message">
+										{{ comment.message }}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					{% empty %}
+					<div class="alert alert-info">
+						<i class="fa fa-info-circle"></i>
+						There are no comments for this post yet. Be the first to comment!
+					</div>
+					{% endfor %}
+				</div>
 
                 <!-- فرم ارسال نظر -->
                 <div class="comment-form mt-5">
@@ -260,62 +312,61 @@
                             </ul>
                         </div>
                         {% endif %}
-
                         <!-- فیلدهای نام و ایمیل (فقط برای کاربران لاگین نکرده) -->
-                        {% if not request.user.is_authenticated %}
-                        <div class="form-group form-inline">
-                            <div class="form-group col-lg-6 col-md-12 name">
-                                <input type="text" name="name" class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
-                                       placeholder="Your Name" value="{{ form.name.value|default:'' }}" required>
-                                {% if form.name.errors %}
-                                <div class="invalid-feedback">{{ form.name.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="form-group col-lg-6 col-md-12 email">
-                                <input type="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
-                                       placeholder="Email Address" value="{{ form.email.value|default:'' }}" required>
-                                {% if form.email.errors %}
-                                <div class="invalid-feedback">{{ form.email.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% else %}
-                        <input type="hidden" name="name" value="{{ request.user.get_full_name|default:request.user.username }}">
-                        <input type="hidden" name="email" value="{{ request.user.email }}">
-                        <p class="text-info">
-                            <i class="fa fa-user"></i>
-                            Commenting as: {{ request.user.get_full_name|default:request.user.username }}
-                        </p>
-                        {% endif %}
+						{% if not request.user.is_authenticated %}
+						<div class="form-group form-inline">
+							<div class="form-group col-lg-6 col-md-12 name">
+								<input type="text" name="name" class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+									placeholder="Your Name" value="{{ form.name.value|default:'' }}" required>
+								{% if form.name.errors %}
+								<div class="invalid-feedback">{{ form.name.errors.0 }}</div>
+								{% endif %}
+							</div>
+							<div class="form-group col-lg-6 col-md-12 email">
+								<input type="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+									placeholder="Email Address" value="{{ form.email.value|default:'' }}" required>
+								{% if form.email.errors %}
+								<div class="invalid-feedback">{{ form.email.errors.0 }}</div>
+								{% endif %}
+							</div>
+						</div>
+						{% else %}
+						<input type="hidden" name="name" value="{{ request.user.get_full_name|default:request.user.username }}">
+						<input type="hidden" name="email" value="{{ request.user.email }}">
+						<p class="text-info">
+							<i class="fa fa-user"></i>
+							Commenting as: {{ request.user.get_full_name|default:request.user.username }}
+						</p>
+						{% endif %}
 
-                        <!-- فیلد موضوع -->
-                        <div class="form-group">
-                            <input type="text" name="subject" class="form-control {% if form.subject.errors %}is-invalid{% endif %}" 
-                                   placeholder="Subject" value="{{ form.subject.value|default:'' }}" required>
-                            {% if form.subject.errors %}
-                            <div class="invalid-feedback">{{ form.subject.errors.0 }}</div>
-                            {% endif %}
-                        </div>
+						<!-- فیلد موضوع -->
+						<div class="form-group">
+							<input type="text" name="subject" class="form-control {% if form.subject.errors %}is-invalid{% endif %}" 
+								placeholder="Subject" value="{{ form.subject.value|default:'' }}" required>
+							{% if form.subject.errors %}
+							<div class="invalid-feedback">{{ form.subject.errors.0 }}</div>
+							{% endif %}
+						</div>
 
-                        <!-- فیلد پیام -->
-                        <div class="form-group">
-                            <textarea name="message" class="form-control {% if form.message.errors %}is-invalid{% endif %}" 
-                                      placeholder="Your Message" rows="6" required>{{ form.message.value|default:'' }}</textarea>
-                            {% if form.message.errors %}
-                            <div class="invalid-feedback">{{ form.message.errors.0 }}</div>
-                            {% endif %}
-                        </div>
+						<!-- فیلد پیام -->
+						<div class="form-group">
+							<textarea name="message" class="form-control {% if form.message.errors %}is-invalid{% endif %}" 
+									placeholder="Your Message" rows="6" required>{{ form.message.value|default:'' }}</textarea>
+							{% if form.message.errors %}
+							<div class="invalid-feedback">{{ form.message.errors.0 }}</div>
+							{% endif %}
+						</div>
 
-                        <!-- فیلد کپچا (فقط برای کاربران لاگین نکرده) -->
-                        {% if not request.user.is_authenticated %}
-                        <div class="form-group">
-                            <label class="d-block mb-2">Security Code:</label>
-                            {{ form.captcha }}
-                            {% if form.captcha.errors %}
-                            <div class="text-danger small mt-1">{{ form.captcha.errors.0 }}</div>
-                            {% endif %}
-                        </div>
-                        {% endif %}
+						<!-- فیلد کپچا (فقط برای کاربران لاگین نکرده) -->
+						{% if not request.user.is_authenticated and form.captcha %}
+						<div class="form-group">
+							<label class="d-block mb-2">Security Code:</label>
+							{{ form.captcha }}
+							{% if form.captcha.errors %}
+							<div class="text-danger small mt-1">{{ form.captcha.errors.0 }}</div>
+							{% endif %}
+						</div>
+						{% endif %}
 
                         <button type="submit" class="primary-btn text-uppercase">
                             <i class="fa fa-paper-plane"></i> Post Comment
