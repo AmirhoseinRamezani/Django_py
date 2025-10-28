@@ -1,0 +1,397 @@
+{% extends 'website/index.html' %}
+{% load static %}
+
+{% block title %}ویرایش پروفایل - {{ user.get_full_name|default:user.username }}{% endblock %}
+
+{% block content %}
+<!-- start banner Area -->
+<section class="banner-area relative blog-home-banner" id="home">
+    <div class="overlay overlay-bg"></div>
+    <div class="container">
+        <div class="row d-flex align-items-center justify-content-center">
+            <div class="about-content blog-header-content col-lg-12">
+                <h1 class="text-white">
+                    ویرایش پروفایل
+                </h1>
+                <p class="text-white">
+                    اطلاعات شخصی خود را به روزرسانی کنید
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End banner Area -->
+
+<!-- Start post-content Area -->
+<section class="post-content-area single-post-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 posts-list mx-auto">
+                <div class="single-post row">
+                    <div class="col-lg-12">
+                        <!-- نمایش پیام‌ها -->
+                        {% if messages %}
+                        <div class="messages mb-4">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded">
+                                <i class="fa fa-{% if message.tags == 'success' %}check{% else %}exclamation{% endif %}-circle mr-2"></i>
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="feature-img text-center mb-4">
+                            {% if user.profile.profile_image %}
+                                <img class="img-fluid rounded-circle" 
+                                     src="{{ user.profile.profile_image.url }}" 
+                                     alt="{{ user.get_full_name }}"
+                                     style="width: 150px; height: 150px; object-fit: cover;">
+                            {% else %}
+                                <img class="img-fluid rounded-circle" 
+                                     src="{% static 'img/blog/user-info.png' %}" 
+                                     alt="{{ user.get_full_name }}"
+                                     style="width: 150px; height: 150px; object-fit: cover;">
+                            {% endif %}
+                        </div>
+
+                        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            
+                            <!-- اطلاعات کاربری -->
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0 text-primary">
+                                        <i class="fa fa-user-circle mr-2"></i>
+                                        اطلاعات کاربری
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ user_form.first_name.label }}</label>
+                                                {{ user_form.first_name }}
+                                                {% if user_form.first_name.errors %}
+                                                <div class="text-danger small mt-1">{{ user_form.first_name.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ user_form.last_name.label }}</label>
+                                                {{ user_form.last_name }}
+                                                {% if user_form.last_name.errors %}
+                                                <div class="text-danger small mt-1">{{ user_form.last_name.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ user_form.username.label }}</label>
+                                                {{ user_form.username }}
+                                                {% if user_form.username.errors %}
+                                                <div class="text-danger small mt-1">{{ user_form.username.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ user_form.email.label }}</label>
+                                                {{ user_form.email }}
+                                                {% if user_form.email.errors %}
+                                                <div class="text-danger small mt-1">{{ user_form.email.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- تصویر پروفایل -->
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0 text-primary">
+                                        <i class="fa fa-camera mr-2"></i>
+                                        تصویر پروفایل
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label class="font-weight-bold">{{ profile_form.profile_image.label }}</label>
+                                        {{ profile_form.profile_image }}
+                                        {% if profile_form.profile_image.errors %}
+                                        <div class="text-danger small mt-1">{{ profile_form.profile_image.errors.0 }}</div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            تصویر با ابعاد 200x200 پیکسل مناسب است
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- بیوگرافی -->
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0 text-primary">
+                                        <i class="fa fa-file-text mr-2"></i>
+                                        بیوگرافی
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label class="font-weight-bold">{{ profile_form.bio.label }}</label>
+                                        {{ profile_form.bio }}
+                                        {% if profile_form.bio.errors %}
+                                        <div class="text-danger small mt-1">{{ profile_form.bio.errors.0 }}</div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            درباره خودتان بنویسید (حداکثر 1000 کاراکتر)
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- اطلاعات شخصی -->
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0 text-primary">
+                                        <i class="fa fa-info-circle mr-2"></i>
+                                        اطلاعات شخصی
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ profile_form.birth_date.label }}</label>
+                                                {{ profile_form.birth_date }}
+                                                {% if profile_form.birth_date.errors %}
+                                                <div class="text-danger small mt-1">{{ profile_form.birth_date.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ profile_form.phone_number.label }}</label>
+                                                {{ profile_form.phone_number }}
+                                                {% if profile_form.phone_number.errors %}
+                                                <div class="text-danger small mt-1">{{ profile_form.phone_number.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- اطلاعات حرفه‌ای -->
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0 text-primary">
+                                        <i class="fa fa-briefcase mr-2"></i>
+                                        اطلاعات حرفه‌ای
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ profile_form.job_title.label }}</label>
+                                                {{ profile_form.job_title }}
+                                                {% if profile_form.job_title.errors %}
+                                                <div class="text-danger small mt-1">{{ profile_form.job_title.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ profile_form.company.label }}</label>
+                                                {{ profile_form.company }}
+                                                {% if profile_form.company.errors %}
+                                                <div class="text-danger small mt-1">{{ profile_form.company.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ profile_form.education_level.label }}</label>
+                                                {{ profile_form.education_level }}
+                                                {% if profile_form.education_level.errors %}
+                                                <div class="text-danger small mt-1">{{ profile_form.education_level.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ profile_form.field_of_study.label }}</label>
+                                                {{ profile_form.field_of_study }}
+                                                {% if profile_form.field_of_study.errors %}
+                                                <div class="text-danger small mt-1">{{ profile_form.field_of_study.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- شبکه‌های اجتماعی -->
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0 text-primary">
+                                        <i class="fa fa-share-alt mr-2"></i>
+                                        شبکه‌های اجتماعی
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ profile_form.website.label }}</label>
+                                                {{ profile_form.website }}
+                                                {% if profile_form.website.errors %}
+                                                <div class="text-danger small mt-1">{{ profile_form.website.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ profile_form.github.label }}</label>
+                                                {{ profile_form.github }}
+                                                {% if profile_form.github.errors %}
+                                                <div class="text-danger small mt-1">{{ profile_form.github.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ profile_form.linkedin.label }}</label>
+                                                {{ profile_form.linkedin }}
+                                                {% if profile_form.linkedin.errors %}
+                                                <div class="text-danger small mt-1">{{ profile_form.linkedin.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="font-weight-bold">{{ profile_form.twitter.label }}</label>
+                                                {{ profile_form.twitter }}
+                                                {% if profile_form.twitter.errors %}
+                                                <div class="text-danger small mt-1">{{ profile_form.twitter.errors.0 }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- دکمه‌های اقدام -->
+                            <div class="text-center mt-5">
+                                <button type="submit" class="primary-btn mr-3">
+                                    <i class="fa fa-save mr-2"></i>ذخیره تغییرات
+                                </button>
+                                <a href="{% url 'accounts:profile_view' %}" class="genric-btn danger-border">
+                                    <i class="fa fa-times mr-2"></i>انصراف
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End post-content Area -->
+
+<style>
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    padding: 12px 15px;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.1);
+}
+
+.card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-header {
+    border-bottom: 1px solid #e8e8e8;
+    padding: 15px 20px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+.primary-btn, .genric-btn {
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.primary-btn:hover, .genric-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+</style>
+
+<script>
+// اعتبارسنجی فرم
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// نمایش پیش‌نمایش تصویر
+document.getElementById('id_profile_image').addEventListener('change', function(e) {
+    if (e.target.files && e.target.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.querySelector('.feature-img img').src = e.target.result;
+        }
+        reader.readAsDataURL(e.target.files[0]);
+    }
+});
+</script>
+{% endblock %}

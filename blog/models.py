@@ -3,10 +3,10 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItemBase
-from django.utils import timezone
 from django.utils.html import strip_tags
 from django.utils.text import Truncator
-
+from django.utils import timezone
+import os
 
 # Create your models here.
 class Category(models.Model):

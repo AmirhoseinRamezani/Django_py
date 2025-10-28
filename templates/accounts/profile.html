@@ -1,0 +1,481 @@
+{% extends 'website/index.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}پروفایل {{ profile_user.get_full_name|default:profile_user.username }}{% endblock %}
+
+{% block content %}
+<!-- start banner Area -->
+<section class="relative about-banner">
+    <div class="overlay overlay-bg"></div>
+    <div class="container">
+        <div class="row d-flex align-items-center justify-content-center">
+            <div class="about-content col-lg-12">
+                <h1 class="text-white">
+                    پروفایل کاربری
+                </h1>
+                <p class="text-white link-nav">
+                    <a href="{% url 'website:index' %}">خانه</a> 
+                    <span class="lnr lnr-arrow-right"></span>
+                    <a href="{% url 'blog:index' %}">بلاگ</a> 
+                    <span class="lnr lnr-arrow-right"></span>
+                    پروفایل {{ profile_user.get_full_name|default:profile_user.username }}
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End banner Area -->
+
+<!-- Start post-content Area -->
+<section class="post-content-area single-post-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 posts-list">
+                <!-- پروفایل اصلی -->
+                <div class="single-post row">
+                    <div class="col-lg-12">
+                        <div class="feature-img text-center mb-4">
+                            {% if profile_user.profile.profile_image %}
+                                <img class="img-fluid rounded-circle" 
+                                     src="{{ profile_user.profile.profile_image.url }}" 
+                                     alt="{{ profile_user.get_full_name }}"
+                                     style="width: 200px; height: 200px; object-fit: cover;">
+                            {% else %}
+                                <img class="img-fluid rounded-circle" 
+                                     src="{% static 'img/blog/user-info.png' %}" 
+                                     alt="{{ profile_user.get_full_name }}"
+                                     style="width: 200px; height: 200px; object-fit: cover;">
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- متادیتا -->
+                    <div class="col-lg-12 col-md-12 meta-details">
+                        <div class="user-details row">
+                            <p class="user-name col-lg-3 col-md-6 col-sm-6">
+                                <span class="lnr lnr-user mr-2"></span>
+                                {{ profile_user.get_full_name|default:profile_user.username }}
+                            </p>
+                            <p class="date col-lg-3 col-md-6 col-sm-6">
+                                <span class="lnr lnr-calendar-full mr-2"></span>
+                                عضویت: {{ profile_user.date_joined|date:"d M Y" }}
+                            </p>
+                            <p class="view col-lg-3 col-md-6 col-sm-6">
+                                <span class="lnr lnr-eye mr-2"></span>
+                                {{ total_views|default:0 }} بازدید
+                            </p>
+                            <p class="comments col-lg-3 col-md-6 col-sm-6">
+                                <span class="lnr lnr-bubble mr-2"></span>
+                                {{ user_posts_count|default:0 }} پست
+                            </p>
+                        </div>
+                        <hr>
+                    </div>
+                    
+                    <div class="col-lg-12">
+                        <!-- اطلاعات اصلی -->
+                        <div class="text-center mb-4">
+                            <h1 class="mt-20 mb-20">{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+                            
+                            <div class="post-tags mb-4">
+                                <ul class="tags list-inline">
+                                    <li class="list-inline-item">
+                                        <span class="badge badge-primary">
+                                            {% if profile_user.profile.user_level == 'writer' %}
+                                                نویسنده
+                                            {% elif profile_user.profile.user_level == 'admin' %}
+                                                ادمین سایت
+                                            {% else %}
+                                                کاربر سایت
+                                            {% endif %}
+                                        </span>
+                                    </li>
+                                    {% if profile_user.profile.job_title %}
+                                    <li class="list-inline-item">
+                                        <span class="badge badge-secondary">{{ profile_user.profile.job_title }}</span>
+                                    </li>
+                                    {% endif %}
+                                    {% if profile_user.profile.company %}
+                                    <li class="list-inline-item">
+                                        <span class="badge badge-info">{{ profile_user.profile.company }}</span>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+
+                            <!-- شبکه‌های اجتماعی -->
+                            <div class="social-share mt-4">
+                                <ul class="social-links list-inline">
+                                    {% if profile_user.profile.website %}
+                                    <li class="list-inline-item">
+                                        <a href="{{ profile_user.profile.website }}" target="_blank" class="text-primary">
+                                            <i class="fa fa-globe fa-lg"></i>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% if profile_user.profile.github %}
+                                    <li class="list-inline-item">
+                                        <a href="{{ profile_user.profile.github }}" target="_blank" class="text-dark">
+                                            <i class="fa fa-github fa-lg"></i>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% if profile_user.profile.linkedin %}
+                                    <li class="list-inline-item">
+                                        <a href="{{ profile_user.profile.linkedin }}" target="_blank" class="text-info">
+                                            <i class="fa fa-linkedin fa-lg"></i>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% if profile_user.profile.twitter %}
+                                    <li class="list-inline-item">
+                                        <a href="{{ profile_user.profile.twitter }}" target="_blank" class="text-primary">
+                                            <i class="fa fa-twitter fa-lg"></i>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- بیوگرافی -->
+                        {% if profile_user.profile.bio %}
+                        <div class="post-content mt-4">
+                            <h3 class="mb-3">درباره من</h3>
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <p class="card-text text-justify mb-0">{{ profile_user.profile.bio|linebreaks }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- اطلاعات تماس و شخصی (فقط برای کاربران لاگین شده) -->
+                        {% if user.is_authenticated %}
+                        <!-- اطلاعات تماس -->
+                        <!-- <div class="post-content mt-4">
+                            <h3 class="mb-3">اطلاعات تماس</h3>
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            {% if profile_user.email %}
+                                            <p class="mb-3">
+                                                <i class="fa fa-envelope text-primary mr-2"></i>
+                                                <strong>ایمیل:</strong><br>
+                                                <span class="text-muted">{{ profile_user.email }}</span>
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            {% if profile_user.profile.phone_number %}
+                                            <p class="mb-3">
+                                                <i class="fa fa-phone text-success mr-2"></i>
+                                                <strong>تلفن:</strong><br>
+                                                <span class="text-muted">{{ profile_user.profile.phone_number }}</span>
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <!-- اطلاعات شخصی -->
+                        <!-- <div class="post-content mt-4">
+                            <h3 class="mb-3">اطلاعات شخصی</h3>
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <ul class="list-unstyled">
+                                                {% if profile_user.profile.birth_date %}
+                                                <li class="mb-2">
+                                                    <i class="fa fa-birthday-cake text-warning mr-2"></i>
+                                                    <strong>سن:</strong> {{ profile_user.profile.get_age }} سال
+                                                </li>
+                                                {% endif %}
+                                                
+                                                {% if profile_user.profile.education_level %}
+                                                <li class="mb-2">
+                                                    <i class="fa fa-graduation-cap text-info mr-2"></i>
+                                                    <strong>تحصیلات:</strong> {{ profile_user.profile.get_education_level_display }}
+                                                </li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul class="list-unstyled">
+                                                {% if profile_user.profile.field_of_study %}
+                                                <li class="mb-2">
+                                                    <i class="fa fa-book text-success mr-2"></i>
+                                                    <strong>رشته:</strong> {{ profile_user.profile.field_of_study }}
+                                                </li>
+                                                {% endif %}
+                                                
+                                                {% if is_own_profile and profile_user.last_login %}
+                                                <li class="mb-2">
+                                                    <i class="fa fa-sign-in text-secondary mr-2"></i>
+                                                    <strong>آخرین ورود:</strong> {{ profile_user.last_login|date:"Y/m/d H:i" }}
+                                                </li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+                        {% else %}
+                        <!-- پیام برای کاربران لاگین نکرده -->
+                        <div class="alert alert-info text-center mt-4">
+                            <i class="fa fa-info-circle mr-2"></i>
+                            برای مشاهده اطلاعات تماس و اطلاعات شخصی، لطفاً 
+                            <a href="{% url 'accounts:login' %}" class="alert-link">وارد شوید</a>.
+                        </div>
+                        {% endif %}
+
+                        <!-- دکمه ویرایش برای صاحب پروفایل -->
+                        {% if is_own_profile %}
+                        <div class="text-center mt-5">
+                            <a href="{% url 'accounts:profile_edit' %}" class="primary-btn text-uppercase">
+                                <i class="fa fa-edit mr-2"></i>ویرایش پروفایل
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- پست‌های کاربر -->
+                {% if user_posts %}
+                <div class="navigation-area mt-5">
+                    <h3 class="mb-4">آخرین مطالب</h3>
+                    
+                    {% for post in user_posts|slice:":4" %}
+                    <div class="single-post row mb-4">
+                        {% if post.image %}
+                        <div class="col-lg-4">
+                            <div class="feature-img">
+                                <img class="img-fluid rounded" src="{{ post.image.url }}" alt="{{ post.title }}" style="height: 150px; object-fit: cover;">
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                        {% else %}
+                        <div class="col-12">
+                        {% endif %}
+                            <div class="meta-details">
+                                <div class="user-details row">
+                                    <p class="date col-lg-6 col-md-6 col-sm-6">
+                                        <span class="lnr lnr-calendar-full mr-2"></span>
+                                        {{ post.published_date|date:"d M Y" }}
+                                    </p>
+                                    <p class="view col-lg-6 col-md-6 col-sm-6">
+                                        <span class="lnr lnr-eye mr-2"></span>
+                                        {{ post.counted_views }} بازدید
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <a class="posts-title" href="{% url 'blog:single' pid=post.id %}">
+                                <h4>{{ post.title }}</h4>
+                            </a>
+                            
+                            <p class="excert text-muted">
+                                {{ post.content|striptags|truncatewords:30 }}
+                            </p>
+                            
+                            <a href="{% url 'blog:single' pid=post.id %}" class="primary-btn text-uppercase">
+                                مشاهده مطلب
+                            </a>
+                        </div>
+                    </div>
+                    
+                    {% if not forloop.last %}
+                    <hr class="my-4">
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- سایدبار -->
+            <div class="col-lg-4 sidebar-widgets">
+                <div class="widget-wrap">
+                    <!-- آمار فعالیت -->
+                    {% if is_own_profile %}
+                    <div class="single-sidebar-widget user-info-widget">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <h4 class="widget-title">آمار فعالیت</h4>
+                                <div class="row mt-3">
+                                    <div class="col-6">
+                                        <div class="stat-box p-3">
+                                            <h3 class="text-primary mb-1">{{ user_posts_count|default:0 }}</h3>
+                                            <small class="text-muted">پست‌ها</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="stat-box p-3">
+                                            <h3 class="text-success mb-1">{{ total_views|default:0 }}</h3>
+                                            <small class="text-muted">بازدیدها</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <p class="mb-0">
+                                            اخرین بازدید: {{ profile_user.last_login|date:"Y/m/d H:i" }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- اطلاعات تماس -->
+                    <div class="single-sidebar-widget user-info-widget mt-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h4 class="widget-title text-center">اطلاعات تماس</h4>
+                                {% if user.is_authenticated %}
+                                <div class="contact-info text-center">
+                                    {% if profile_user.email %}
+                                    <p class="mb-2">
+                                        <i class="fa fa-envelope text-primary mr-2"></i>
+                                        {{ profile_user.email }}
+                                    </p>
+                                    {% endif %}
+                                    {% if profile_user.profile.phone_number %}
+                                    <p class="mb-0">
+                                        <i class="fa fa-phone text-success mr-2"></i>
+                                        {{ profile_user.profile.phone_number }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                {% else %}
+                                <div class="text-center py-3">
+                                    <i class="fa fa-lock text-muted mb-2"></i>
+                                    <p class="text-muted small mb-0">
+                                        برای مشاهده اطلاعات تماس<br>
+                                        لطفاً وارد سیستم شوید
+                                    </p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- اطلاعات شخصی -->
+                    <div class="single-sidebar-widget user-info-widget mt-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h4 class="widget-title text-center">اطلاعات شخصی</h4>
+                                {% if user.is_authenticated %}
+                                <div class="personal-info">
+                                    {% if profile_user.profile.birth_date %}
+                                    <p class="mb-2">
+                                        <i class="fa fa-birthday-cake text-warning mr-2"></i>
+                                        سن: {{ profile_user.profile.get_age }} سال
+                                    </p>
+                                    {% endif %}
+                                    
+                                    {% if profile_user.profile.education_level %}
+                                    <p class="mb-2">
+                                        <i class="fa fa-graduation-cap text-info mr-2"></i>
+                                        {{ profile_user.profile.get_education_level_display }}
+                                    </p>
+                                    {% endif %}
+                                    
+                                    {% if profile_user.profile.field_of_study %}
+                                    <p class="mb-2">
+                                        <i class="fa fa-book text-success mr-2"></i>
+                                        {{ profile_user.profile.field_of_study }}
+                                    </p>
+                                    {% endif %}
+                                    
+                                    
+                                </div>
+                                {% else %}
+                                <div class="text-center py-3">
+                                    <i class="fa fa-lock text-muted mb-2"></i>
+                                    <p class="text-muted small mb-0">
+                                        برای مشاهده اطلاعات شخصی<br>
+                                        لطفاً وارد سیستم شوید
+                                    </p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- پست‌های اخیر -->
+                    <!-- {% if user_posts %}
+                    <div class="single-sidebar-widget popular-post-widget mt-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h4 class="widget-title">آخرین مطالب</h4>
+                                <div class="popular-post-list">
+                                    {% for post in user_posts|slice:":3" %}
+                                    <div class="single-post-list d-flex flex-row align-items-center mb-3">
+                                        {% if post.image %}
+                                        <div class="thumb">
+                                            <img class="img-fluid rounded" src="{{ post.image.url }}" alt="{{ post.title }}" style="width: 60px; height: 60px; object-fit: cover;">
+                                        </div>
+                                        <div class="details mr-3">
+                                        {% else %}
+                                        <div class="details" style="width: 100%;">
+                                        {% endif %}
+                                            <a href="{% url 'blog:single' pid=post.id %}">
+                                                <h6>{{ post.title|truncatewords:5 }}</h6>
+                                            </a>
+                                            <p class="small text-muted mb-0">
+                                                <i class="fa fa-calendar mr-1"></i>
+                                                {{ post.published_date|date:"Y/m/d" }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {% if not forloop.last %}<hr class="my-2">{% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %} -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End post-content Area -->
+
+<style>
+.stat-box {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.stat-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.social-links a {
+    transition: all 0.3s ease;
+}
+.social-links a:hover {
+    transform: translateY(-2px);
+}
+.card {
+    border-radius: 10px;
+}
+.widget-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+.contact-info p, .personal-info p {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+</style>
+{% endblock %}

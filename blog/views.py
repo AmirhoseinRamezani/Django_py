@@ -7,61 +7,48 @@ from django.contrib import messages
 from django.http import Http404
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
+from django.core.paginator import Paginator
+from django.contrib.auth.models import User
 
 # Create your views here.
-def blog_view(request, **kwargs):
-    posts = Post.objects.filter(status=True)\
-        .select_related('author')\
-        .prefetch_related('categories', 'tags', 'comments')
+def blog_view(request):
+    """صفحه اصلی بلاگ"""
+    posts_list = Post.objects.filter(status=1).order_by('-published_date')
+    paginator = Paginator(posts_list, 4)
+    page = request.GET.get('page')
+    posts = paginator.get_page(page)
     
-    # مدیریت پارامترهای اختیاری
-    # استخراج پارامترها از kwargs
-    cat_name = kwargs.get('cat_name')
-    author_username = kwargs.get('author_username')
-    tag_name = kwargs.get('tag_name')
+    # تعیین پروفایل برای نمایش در سایدبار
+    if request.user.is_authenticated:
+        # اگر کاربر لاگین کرده، پروفایل خودش رو نشون بده
+        profile_user = request.user
+    else:
+        # اگر کاربر لاگین نکرده، پروفایل مدیر سایت رو نشون بده
+        try:
+            profile_user = User.objects.filter(profile__user_level='admin').first()
+            if not profile_user:
+                profile_user = User.objects.filter(is_staff=True).first()
+        except:
+            profile_user = None
     
-    # فیلتر کردن بر اساس پارامترها
-    if cat_name:
-        posts = posts.filter(categories__name=cat_name)
-    
-    if author_username:
-        posts = posts.filter(author__username=author_username)
-    
-    if tag_name:
-        posts = posts.filter(tags__name=tag_name)
-    
-    # صفحه‌بندی
-    paginator = Paginator(posts, 6)
-    page_number = request.GET.get('page')
-    
-    try:
-        posts = paginator.get_page(page_number)
-    except PageNotAnInteger:
-        posts = paginator.get_page(1)
-    except EmptyPage:
-        posts = paginator.get_page(paginator.num_pages)
-    
-    # ایجاد context
     context = {
         'posts': posts,
-        'current_cat': cat_name,
-        'current_author': author_username,
-        'current_tag': tag_name,
+        'profile_user': profile_user,
     }
-    
     return render(request, 'blog/blog-home.html', context)
-@cache_page(60 * 15)
-@vary_on_cookie
-@cache_page(60 * 15)
-@vary_on_cookie
+
 def blog_single(request, pid):
-    # پست فعلی
+    """صفحه تک پست"""
     post = get_object_or_404(
         Post.objects.select_related('author')
                     .prefetch_related('categories', 'tags')
                     .filter(status=True), 
         pk=pid
     )
+    
+    # افزایش تعداد بازدیدها
+    post.counted_views += 1
+    post.save(update_fields=['counted_views'])
     
     # کامنت‌های تأیید شده
     comments = Comment.objects.filter(post=post, approved=True)\
@@ -85,10 +72,7 @@ def blog_single(request, pid):
         categories__in=post.categories.all()
     ).exclude(id=post.id).distinct()[:4]
     
-    # داده‌های سایدبار
-    latest_posts = Post.objects.filter(status=True).order_by('-published_date')[:5]
-    categories = Category.objects.annotate(post_count=Count('posts')).filter(post_count__gt=0)
-    
+    # مدیریت فرم کامنت
     if request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
@@ -100,10 +84,10 @@ def blog_single(request, pid):
                 comment.email = request.user.email
             
             comment.save()
-            messages.success(request, 'Your comment was submitted successfully and is awaiting approval.')
+            messages.success(request, 'نظر شما با موفقیت ثبت شد و در انتظار تایید است.')
             return redirect('blog:single', pid=pid)
         else:
-            messages.error(request, 'There was an error submitting your comment. Please check the form.')
+            messages.error(request, 'خطا در ارسال نظر. لطفا فرم را بررسی کنید.')
     else:
         initial = {}
         if request.user.is_authenticated:
@@ -113,9 +97,8 @@ def blog_single(request, pid):
             }
         form = CommentForm(initial=initial)
     
-    # افزایش تعداد بازدیدها
-    post.counted_views += 1
-    post.save(update_fields=['counted_views'])
+    # پروفایل نویسنده این پست - این خط مهمه!
+    profile_user = post.author
     
     context = {
         'post': post,
@@ -124,17 +107,17 @@ def blog_single(request, pid):
         'previous_post': previous_post,
         'next_post': next_post,
         'related_posts': related_posts,
-        'posts': latest_posts,
-        'categories': categories,
+        'profile_user': profile_user,  # اضافه کردن پروفایل نویسنده
     }
     return render(request, 'blog/blog-single.html', context)
 
 def blog_search(request):
-    # posts = Post.objects.filter(status=1)
+    """جستجو در بلاگ"""
     query = request.GET.get('s', '').strip()
     if not query:
-        messages.info(request, 'Please enter a search term.')
+        messages.info(request, 'لطفا عبارت جستجو را وارد کنید.')
         return redirect('blog:index')
+    
     posts = Post.objects.filter(status=True)\
         .select_related('author')\
         .prefetch_related('categories', 'tags')\
@@ -145,6 +128,15 @@ def blog_search(request):
             Q(categories__name__icontains=query) |
             Q(tags__name__icontains=query)
         ).distinct()
+    
+    # تعیین پروفایل برای نمایش
+    if request.user.is_authenticated:
+        profile_user = request.user
+    else:
+        try:
+            profile_user = User.objects.filter(profile__user_level='admin').first()
+        except:
+            profile_user = None
     
     paginator = Paginator(posts, 6)
     page_number = request.GET.get('page')
@@ -157,25 +149,73 @@ def blog_search(request):
         posts = paginator.get_page(paginator.num_pages)
         
     context = {
-            'posts': posts, 
-            'query': query,
-            'results_count': posts.paginator.count,
-            # 'results_count': posts.count()  # نمایش تعداد نتایج
-            }
+        'posts': posts, 
+        'query': query,
+        'results_count': posts.paginator.count,
+        'profile_user': profile_user,
+    }
     return render(request, 'blog/blog-home.html', context)
 
-def blog_category (request ,cat_name):
+def blog_category(request, cat_name):
+    """پست‌های یک دسته‌بندی"""
     posts = Post.objects.filter(status=True, categories__name=cat_name)\
         .select_related('author')\
         .prefetch_related('categories', 'tags')
     
+    # تعیین پروفایل برای نمایش
+    if request.user.is_authenticated:
+        profile_user = request.user
+    else:
+        try:
+            profile_user = User.objects.filter(profile__user_level='admin').first()
+        except:
+            profile_user = None
+    
     context = {
         'posts': posts,
-        'current_cat': cat_name
+        'current_cat': cat_name,
+        'profile_user': profile_user,
     }
     return render(request, 'blog/blog-home.html', context)
 
-def post_detail(request, pid):
+def blog_tag(request, tag_name):
+    """پست‌های یک تگ"""
+    posts = Post.objects.filter(status=True, tags__name=tag_name)\
+        .select_related('author')\
+        .prefetch_related('categories', 'tags')
+    
+    # تعیین پروفایل برای نمایش
+    if request.user.is_authenticated:
+        profile_user = request.user
+    else:
+        try:
+            profile_user = User.objects.filter(profile__user_level='admin').first()
+        except:
+            profile_user = None
+    
+    context = {
+        'posts': posts,
+        'current_tag': tag_name,
+        'profile_user': profile_user,
+    }
+    return render(request, 'blog/blog-home.html', context)
+
+def blog_author(request, author_username):
+    """پست‌های یک نویسنده"""
+    author = get_object_or_404(User, username=author_username)
+    posts = Post.objects.filter(status=True, author=author)\
+        .select_related('author')\
+        .prefetch_related('categories', 'tags')
+    
+    # پروفایل نویسنده
+    profile_user = author
+    
+    context = {
+        'posts': posts,
+        'current_author': author,
+        'profile_user': profile_user,
+    }
+    return render(request, 'blog/blog-home.html', context)
     """
     نمایش جزئیات پست و مدیریت نظرات
     """

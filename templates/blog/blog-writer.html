@@ -1,23 +1,174 @@
 {% load static %}
-    
 
 <div class="single-sidebar-widget user-info-widget">
-	<img src="{% static 'img/blog/user-info.png'%}" alt="">
-	<a href="#">
-		<h4>Charlie Barber</h4>
-	</a>
-	<p>
-		Senior blog writer
-	</p>
-	<ul class="social-links">
-		<li><a href="#"><i class="fa fa-facebook"></i></a></li>
-		<li><a href="#"><i class="fa fa-twitter"></i></a></li>
-		<li><a href="#"><i class="fa fa-github"></i></a></li>
-		<li><a href="#"><i class="fa fa-behance"></i></a></li>
-	</ul>
-	<p>
-		Boot camps have its supporters andit sdetractors. Some people do not understand why you
-		should have to spend money on boot camp when you can get. Boot camps have itssuppor ters
-		andits detractors.
-	</p>
+    <div class="card">
+        <div class="card-body text-center">
+            
+            {% if profile_user and profile_user.profile %}
+                <!-- حالت داینامیک - پروفایل واقعی -->
+                <div class="dynamic-profile">
+                    <!-- تصویر پروفایل -->
+                    {% if profile_user.profile.profile_image %}
+                        <img src="{{ profile_user.profile.profile_image.url }}" 
+                             alt="{{ profile_user.get_full_name }}" 
+                             class="img-fluid rounded-circle mb-3"
+                             style="width: 100px; height: 100px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'img/blog/user-info.png' %}" 
+                             alt="{{ profile_user.get_full_name }}"
+                             class="img-fluid rounded-circle mb-3"
+                             style="width: 100px; height: 100px; object-fit: cover;">
+                    {% endif %}
+                    
+                    <!-- نام و اطلاعات -->
+                    <a href="{% url 'accounts:profile_view_with_username' username=profile_user.username %}" class="text-dark">
+                        <h5 class="mt-2">{{ profile_user.get_full_name|default:profile_user.username }}</h5>
+                    </a>
+                    
+                    <!-- سطح کاربر -->
+                    <p class="text-muted small mb-2">
+                        {% if profile_user.profile.user_level == 'writer' %}
+                            <i class="fa fa-pen text-success"></i> <span class="text-success">نویسنده</span>
+                        {% elif profile_user.profile.user_level == 'admin' %}
+                            <i class="fa fa-crown text-warning"></i> <span class="text-warning">مدیر سایت</span>
+                        {% else %}
+                            <i class="fa fa-user text-info"></i> <span class="text-info">کاربر سایت</span>
+                        {% endif %}
+                    </p>
+                    
+                    <!-- اطلاعات شغلی -->
+                    {% if profile_user.profile.job_title %}
+                    <p class="text-muted small mb-2">
+                        <i class="fa fa-briefcase"></i> 
+                        {{ profile_user.profile.job_title }}
+                        {% if profile_user.profile.company %}
+                            در <strong>{{ profile_user.profile.company }}</strong>
+                        {% endif %}
+                    </p>
+                    {% endif %}
+                    
+                    <!-- بیوگرافی کوتاه -->
+                    {% if profile_user.profile.bio %}
+                    <div class="mt-3">
+                        <p class="small text-justify border-top pt-2">
+                            {{ profile_user.profile.bio|truncatewords:15 }}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- اطلاعات تماس (فقط برای کاربران لاگین شده) -->
+                    {% if user.is_authenticated %}
+                    <div class="contact-info mt-3 border-top pt-2">
+                        {% if profile_user.email %}
+                        <p class="small mb-1">
+                            <i class="fa fa-envelope text-primary mr-1"></i>
+                            {{ profile_user.email|truncatechars:20 }}
+                        </p>
+                        {% endif %}
+                        {% if profile_user.profile.phone_number %}
+                        <p class="small mb-0">
+                            <i class="fa fa-phone text-success mr-1"></i>
+                            {{ profile_user.profile.phone_number }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- شبکه‌های اجتماعی -->
+                    <div class="social-links mt-3">
+                        {% if profile_user.profile.website %}
+                            <a href="{{ profile_user.profile.website }}" target="_blank" class="text-primary mx-1" title="وبسایت">
+                                <i class="fa fa-globe fa-lg"></i>
+                            </a>
+                        {% endif %}
+                        {% if profile_user.profile.github %}
+                            <a href="{{ profile_user.profile.github }}" target="_blank" class="text-dark mx-1" title="GitHub">
+                                <i class="fa fa-github fa-lg"></i>
+                            </a>
+                        {% endif %}
+                        {% if profile_user.profile.linkedin %}
+                            <a href="{{ profile_user.profile.linkedin }}" target="_blank" class="text-info mx-1" title="LinkedIn">
+                                <i class="fa fa-linkedin fa-lg"></i>
+                            </a>
+                        {% endif %}
+                        {% if profile_user.profile.twitter %}
+                            <a href="{{ profile_user.profile.twitter }}" target="_blank" class="text-primary mx-1" title="Twitter">
+                                <i class="fa fa-twitter fa-lg"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- دکمه‌های اقدام -->
+                    <div class="mt-3">
+                        {% if user.is_authenticated %}
+                            {% if user == profile_user %}
+                                <!-- کاربر مالک پروفایل هست - دسترسی کامل -->
+                                <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fa fa-edit"></i> ویرایش
+                                </a>
+                                <a href="{% url 'accounts:profile_view_with_username' username=profile_user.username %}" 
+                                   class="btn btn-primary btn-sm mt-1">
+                                    <i class="fa fa-user"></i> پروفایل کامل
+                                </a>
+                            {% else %}
+                                <!-- کاربر دیگر هست - فقط مشاهده -->
+                                <a href="{% url 'accounts:profile_view_with_username' username=profile_user.username %}" 
+                                   class="btn btn-primary btn-sm">
+                                    <i class="fa fa-eye"></i> مشاهده پروفایل
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <!-- کاربر لاگین نکرده -->
+                            <div class="alert alert-warning small py-1 mb-2">
+                                <i class="fa fa-lock"></i> اطلاعات محدود
+                            </div>
+                            <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm">
+                                <i class="fa fa-sign-in"></i> ورود برای مشاهده کامل
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+            {% else %}
+                <!-- حالت پیش‌فرض - وقتی پروفایل وجود نداره -->
+                <div class="default-profile">
+                    <img src="{% static 'img/blog/user-info.png' %}" 
+                         alt="مدیر سایت"
+                         class="img-fluid rounded-circle mb-3"
+                         style="width: 100px; height: 100px; object-fit: cover;">
+                    <h5>مدیر سایت</h5>
+                    <p class="text-muted small">نویسنده و مدیر</p>
+                    <p class="small text-muted">به وبلاگ ما خوش آمدید</p>
+                    
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm">
+                        <i class="fa fa-sign-in"></i> ورود به سیستم
+                    </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
+
+<style>
+.dynamic-profile .contact-info {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    padding: 8px;
+}
+.social-links a {
+    transition: all 0.3s ease;
+}
+.social-links a:hover {
+    transform: translateY(-2px);
+}
+.card {
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+.alert-warning {
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+}
+</style>

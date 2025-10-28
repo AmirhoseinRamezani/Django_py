@@ -34,7 +34,7 @@ urlpatterns = [    # path ('url addree', 'view' , name)
     path('admin/', admin.site.urls),
     path('' ,include('website.urls')),
     # path('blog/' ,include('blog.urls'))
-    path('blog/' ,include(('blog.urls', 'blog'), namespace='blog')),
+    path('blog/', include('blog.urls', namespace='blog')),
     path('accounts/', include('accounts.urls', namespace='accounts')),    
     path('summernote/', include('django_summernote.urls')),
     path("sitemap.xml",sitemap,
@@ -44,7 +44,7 @@ urlpatterns = [    # path ('url addree', 'view' , name)
     path('robots.txt', include('robots.urls')),
     path('captcha/', include('captcha.urls')),
 
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # if settings.DEBUG:
 #     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

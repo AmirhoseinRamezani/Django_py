@@ -213,7 +213,7 @@
 								<!-- {{ post.excerpt }} -->
 								<!-- {{ post.excerpt_chars }} -->
 							</p>
-							<a href="/blog/{{post.id}}" class="primary-btn">View More</a>
+							<a href="{% url 'blog:single' pid=post.id %}" class="primary-btn">View More</a>
 						</div>
 					</div>
 					{% empty %}
@@ -260,7 +260,7 @@
 				<div class="col-lg-4 sidebar-widgets">
 					<div class="widget-wrap">
 						{% include 'blog/blog-search.html' %}
-						{% include 'blog/blog-writer.html' %}
+						{% include 'blog/blog-writer.html' with profile_user=profile_user %}
 						{% latestposts %}
 						{% postcategories %}
 						{% include 'blog/blog-ads.html' %}
