@@ -6,20 +6,97 @@
         Here, I focus on a range of items and features that we use in life without
         giving them a second thought.
     </p>
-    <div class="form-group d-flex flex-row">
-        <div class="col-autos">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <div class="input-group-text"><i class="fa fa-envelope" aria-hidden="true"></i>
+    
+    <form id="newsletter-form" method="post" action="{% url 'website:newsletter' %}">
+        {% csrf_token %}
+        <div class="form-group d-flex flex-row">
+            <div class="col-autos">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text">
+                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                        </div>
                     </div>
+                    <input type="email" name="email" class="form-control" 
+                           id="newsletter-email" placeholder="Enter email"
+                           onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email'"
+                           required>
                 </div>
-                <input type="text" class="form-control" id="inlineFormInputGroup" placeholder="Enter email"
-                    onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter email'">
             </div>
+            <button type="submit" class="bbtns" id="newsletter-submit">Subscribe</button>
         </div>
-        <a href="#" class="bbtns">Subcribe</a>
-    </div>
+    </form>
+    
+    <div id="newsletter-message" style="display: none; margin-top: 10px;"></div>
+    
     <p class="text-bottom">
         You can unsubscribe at any time
     </p>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const newsletterForm = document.getElementById('newsletter-form');
+    
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = this;
+            const submitBtn = document.getElementById('newsletter-submit');
+            const messageDiv = document.getElementById('newsletter-message');
+            const emailInput = document.getElementById('newsletter-email');
+            
+            // نمایش loading
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = 'Loading...';
+            submitBtn.disabled = true;
+            
+            // ارسال درخواست AJAX
+            fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    // اگر ریدایرکت شده، صفحه را رفرش کن
+                    window.location.reload();
+                    return;
+                }
+                return response.text();
+            })
+            .then(data => {
+                // بررسی اینکه آیا پاسخ HTML است (بدون AJAX)
+                if (data && typeof data === 'string' && data.includes('<!DOCTYPE html>')) {
+                    window.location.reload();
+                    return;
+                }
+                
+                // نمایش پیام موفقیت
+                messageDiv.style.display = 'block';
+                messageDiv.className = 'alert alert-success';
+                messageDiv.innerHTML = '✅ ایمیل شما با موفقیت ثبت شد!';
+                form.reset();
+            })
+            .catch(error => {
+                messageDiv.style.display = 'block';
+                messageDiv.className = 'alert alert-danger';
+                messageDiv.innerHTML = '❌ خطا در ارتباط با سرور';
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                // مخفی کردن پیام بعد از 5 ثانیه
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            });
+        });
+    }
+});
+</script>

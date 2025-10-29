@@ -35,7 +35,7 @@
     <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="{% url 'blog:rss_feed' %}">
     <link rel="alternate" type="application/atom+xml" title="Atom Feed" href="{% url 'blog:atom_feed' %}">
     <!-- ====================🔼🔼=================== -->
-
+    {% block extra_css %}{% endblock %}
 </head>
 
 <body>
@@ -218,5 +218,5 @@
     <script src="{% static 'js/mail-script.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
 </body>
-
+{% block extra_js %}{% endblock %}
 </html>
