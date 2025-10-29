@@ -2,6 +2,7 @@
 {% load static %}
 {% load humanize %}
 {% load blog-tags %}
+{% load profile_links %}
 
 {% block content %}
 
@@ -43,15 +44,8 @@
 					<div class="col-lg-12 col-md-12 meta-details">
 						<div class="user-details row">
 							<p class="user-name col-lg-3 col-md-6 col-sm-6">
-								{% if post.author.profile %}
-									<a href="{% url 'accounts:profile_view_with_username' username=post.author.username %}">
-										{{ post.author.get_full_name|default:post.author.username }}
-									</a>
-								{% else %}
-									<a href="#">
-										{{ post.author.get_full_name|default:post.author.username }}
-									</a>
-								{% endif %}
+								<!-- ✅ اصلاح شده: استفاده از profile_link -->
+								{% profile_link post.author request.user post.author.get_full_name|default:post.author.username "text-dark" %}
 								<span class="lnr lnr-user"></span>
 							</p>
 							<p class="date col-lg-3 col-md-6 col-sm-6">
@@ -81,11 +75,6 @@
                         <!-- تگ‌ها -->
                         <div class="post-tags mt-4">
                             <strong>category:</strong>
-                            <!-- {% for tag in post.tags.all %}
-                            <a href="{% url 'blog:tag' tag_name=tag.name %}" class="tag-link">
-                                #{{ tag.name }}
-                            </a>{% if not forloop.last %}, {% endif %}
-                            {% endfor %} -->
 							<div class="post-categories mb-4">
                             <ul class="tags list-inline">
                                 {% for cat in post.categories.all %}
@@ -184,24 +173,7 @@
                     </div>
                 </div>
                 {% endif %}
-				<!-- دیباگ اطلاعات کامنت‌ها -->
-				<div class="debug-info" style="background: #f8f9fa; padding: 15px; margin: 10px 0; border: 1px solid #ddd;">
-					<h5>اطلاعات دیباگ کامنت‌ها:</h5>
-					{% for comment in comments %}
-					<div style="margin: 10px 0; padding: 10px; border: 1px solid #ccc;">
-						<strong>کامنت #{{ forloop.counter }}:</strong><br>
-						- نام: {{ comment.name }}<br>
-						- کاربر: {{ comment.user }}<br>
-						- کاربر لاگین کرده: {% if comment.user %}بله{% else %}خیر{% endif %}<br>
-						- پروفایل کاربر: {% if comment.user and comment.user.profile %}{{ comment.user.profile }}{% else %}ندارد{% endif %}<br>
-						- تصویر پروفایل: {% if comment.user and comment.user.profile and comment.user.profile.profile_image %}{{ comment.user.profile.profile_image.url }}{% else %}ندارد{% endif %}<br>
-						- has_user_profile_image: {{ comment.has_user_profile_image }}<br>
-						- get_user_profile_image: {{ comment.get_user_profile_image }}<br>
-					</div>
-					{% empty %}
-					<p>هیچ کامنتی برای نمایش وجود ندارد</p>
-					{% endfor %}
-				</div>
+
                 <!-- بخش نظرات -->
 				<div class="comments-area mt-5" id="comments-section">
 					<h4>{{ comments.count }} Comments</h4>
@@ -211,28 +183,26 @@
 						<div class="single-comment justify-content-between d-flex">
 							<div class="user justify-content-between d-flex">
 								<div class="thumb">
-									{% if comment.user and comment.has_user_profile_image %}
-										<!-- اگر کاربر لاگین کرده و تصویر پروفایل دارد -->
-										<img src="{{ comment.get_user_profile_image }}" alt="{{ comment.name }}" 
-											class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover;">
-									{% elif comment.user %}
-										<!-- اگر کاربر لاگین کرده اما تصویر پروفایل ندارد -->
-										<img src="{% static 'img/blog/default-avatar.jpg' %}" alt="{{ comment.name }}" 
-											class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover;">
+									{% if comment.user %}
+										<!-- ✅ اصلاح شده: استفاده از profile_image_link -->
+										{% if comment.has_user_profile_image %}
+											{% profile_image_link comment.user request.user comment.get_user_profile_image comment.name "rounded-circle" "70px" %}
+										{% else %}
+											{% profile_image_link comment.user request.user "/static/img/blog/default-avatar.jpg" comment.name "rounded-circle" "70px" %}
+										{% endif %}
 									{% else %}
 										<!-- اگر کاربر مهمان است -->
-										<img src="{% static 'img/blog/c1.jpg' %}" alt="{{ comment.name }}">
+										<img src="{% static 'img/blog/c1.jpg' %}" alt="{{ comment.name }}" class="rounded-circle" style="width: 70px; height: 70px; object-fit: cover;">
 									{% endif %}
 								</div>
 								<div class="desc">
 									<h5>
-										<a href="#">
-											{% if comment.user %}
-												{{ comment.user.get_full_name|default:comment.user.username }}
-											{% else %}
-												{{ comment.name }}
-											{% endif %}
-										</a>
+										<!-- ✅ اصلاح شده: استفاده از profile_link -->
+										{% if comment.user %}
+											{% profile_link comment.user request.user comment.user.get_full_name|default:comment.user.username "text-dark font-weight-bold" %}
+										{% else %}
+											{{ comment.name }}
+										{% endif %}
 										{% if comment.approved %}
 										<small class="text-success">✓ Approved</small>
 										{% endif %}
