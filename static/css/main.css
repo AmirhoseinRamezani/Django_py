@@ -3924,6 +3924,71 @@ body.mobile-nav-active #mobile-nav-toggle {
     font-style: italic;
 }
  /* =============End style tags================ */
+/* استایل برای testimonial */
+.testimonial-area {
+    background: #f9f9ff;
+}
+
+.single-testimonial {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin: 15px;
+}
+
+.single-testimonial .writer {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.single-testimonial .writer .thumb {
+    margin-right: 15px;
+}
+
+.single-testimonial .writer .thumb img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.active-testimonial {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* استایل برای کاروسل */
+.active-recent-blog-carusel,
+.active-testimonial {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 20px;
+    padding: 10px 0;
+}
+
+.single-recent-blog-post,
+.single-testimonial {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    width: 350px;
+}
+
+/* responsive */
+@media (max-width: 768px) {
+    .single-recent-blog-post,
+    .single-testimonial {
+        width: 300px;
+    }
+}
+/* ====================== */
+
+
+
+
 .single-post-area {
   padding-top: 80px;
   padding-bottom: 80px;

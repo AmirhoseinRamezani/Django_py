@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="popular-destination-area section-gap">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="menu-content pb-70 col-lg-8">
+                <div class="title text-center">
+                    <h1 class="mb-10">تورهای مسافرتی</h1>
+                    <p>بهترین تورهای زمینی و هوایی را با ما تجربه کنید</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- فیلترها -->
+        <div class="row mb-4">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="get" class="row">
+                            <div class="col-md-3">
+                                <input type="text" name="destination" class="form-control" placeholder="مقصد" value="{{ request.GET.destination }}">
+                            </div>
+                            <div class="col-md-2">
+                                <select name="tour_type" class="form-select">
+                                    <option value="">نوع تور</option>
+                                    <option value="domestic" {% if request.GET.tour_type == 'domestic' %}selected{% endif %}>داخلی</option>
+                                    <option value="international" {% if request.GET.tour_type == 'international' %}selected{% endif %}>خارجی</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" name="min_price" class="form-control" placeholder="حداقل قیمت" value="{{ request.GET.min_price }}">
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" name="max_price" class="form-control" placeholder="حداکثر قیمت" value="{{ request.GET.max_price }}">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">جستجو</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- لیست تورها -->
+        <div class="row">
+            {% for tour in tours %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="single-destination relative">
+                    <div class="thumb relative">
+                        <div class="overlay overlay-bg"></div>
+                        <img class="img-fluid" src="{{ tour.featured_image.url }}" alt="{{ tour.title }}">
+                        {% if tour.is_featured %}
+                        <span class="featured-badge">ویژه</span>
+                        {% endif %}
+                    </div>
+                    <div class="desc">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="price-btn">{{ tour.get_current_price }} تومان</span>
+                            <small class="text-muted">{{ tour.duration_days }} روز</small>
+                        </div>
+                        <h4>{{ tour.title }}</h4>
+                        <p class="mb-2">{{ tour.short_description|truncatewords:15 }}</p>
+                        
+                        <div class="tour-info">
+                            <small class="d-block"><i class="fa fa-users"></i> ظرفیت باقیمانده: {{ tour.available_seats }}</small>
+                            <small class="d-block"><i class="fa fa-map-marker"></i> 
+                                {% for destination in tour.destinations.all|slice:":2" %}
+                                {{ destination.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </small>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <a href="{% url 'tours:detail' tour.id %}" class="genric-btn primary small">مشاهده جزئیات</a>
+                            {% if tour.available_seats > 0 %}
+                            <a href="{% url 'tours:booking' tour.id %}" class="genric-btn success small">رزرو</a>
+                            {% else %}
+                            <span class="genric-btn danger small">تکمیل ظرفیت</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <div class="alert alert-info">
+                    <p>تور یافت نشد.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+.featured-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #f8b600;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    z-index: 2;
+}
+.tour-info {
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+</style>
+{% endblock %}

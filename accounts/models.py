@@ -18,7 +18,7 @@ class UserLevel(models.TextChoices):
     NORMAL = 'normal', 'کاربر معمولی'
     WRITER = 'writer', 'نویسنده'
     ADMIN = 'admin', 'ادمین سایت'
-
+    SUPER_ADMIN = 'super_admin', 'رییس (Super Admin)'
 
 class EducationLevel(models.TextChoices):
     DIPLOMA = 'diploma', 'دیپلم'
@@ -29,12 +29,19 @@ class EducationLevel(models.TextChoices):
 
 
 class UserProfile(models.Model):
+    
     # ارتباط با کاربر
     user = models.OneToOneField(
         User, 
         on_delete=models.CASCADE, 
         related_name='profile',
         verbose_name='کاربر'
+    )
+    user_level = models.CharField(
+        max_length=15,
+        choices=UserLevel.choices,
+        default=UserLevel.NORMAL,
+        verbose_name='سطح دسترسی'
     )
     
     # اطلاعات اصلی پروفایل
@@ -43,13 +50,6 @@ class UserProfile(models.Model):
         blank=True, 
         verbose_name='بیوگرافی',
         help_text='حداکثر ۱۰۰۰ کاراکتر'
-    )
-    
-    user_level = models.CharField(
-        max_length=10,
-        choices=UserLevel.choices,
-        default=UserLevel.NORMAL,
-        verbose_name='سطح دسترسی'
     )
     
     profile_image = models.ImageField(

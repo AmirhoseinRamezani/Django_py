@@ -39,11 +39,16 @@ urlpatterns = [    # path ('url addree', 'view' , name)
     path('summernote/', include('django_summernote.urls')),
     path("sitemap.xml",sitemap,
         {"sitemaps": sitemaps},
-        name="django.contrib.sitemaps.views.sitemap",),   
+        name="django.contrib.sitemaps.views.sitemap",),
+    path('tours/', include('tours.urls')),   
     path('', include('blog.urls', namespace='blog_root')),
     path('robots.txt', include('robots.urls')),
     path('captcha/', include('captcha.urls')),
-
+    path('destinations/', include('destinations.urls')),
+    path('services/', include('services.urls')),
+    path('testimonials/', include('testimonials.urls')),
+    path('reservation/', include('reservation.urls')),
+    
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # if settings.DEBUG:

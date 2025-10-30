@@ -7,26 +7,26 @@ register = template.Library()
 
 @register.simple_tag
 def profile_link(user, current_user, text=None, css_class=""):
-    """
-    ایجاد لینک پروفایل برای کاربران - نسخه بهینه شده
-    """
+    """ایجاد لینک پروفایل - بهینه‌سازی شده"""
     if not user or not isinstance(user, User):
         return text or ""
     
-    display_text = text or user.get_full_name() or user.username
+    # واکشی پروفایل کاربر
+    if hasattr(user, 'profile'):
+        profile = user.profile
+        display_text = text or profile.display_name or user.username
+    else:
+        display_text = text or user.get_full_name() or user.username
     
-    # فقط اگر کاربر جاری لاگین کرده باشد لینک فعال شود
+    # فقط کاربران لاگین شده می‌توانند پروفایل ببینند
     if current_user.is_authenticated:
         url = reverse('accounts:profile_view', kwargs={'username': user.username})
         return format_html(
-            '<a href="{}" class="profile-link {}" title="مشاهده پروفایل {}">{}</a>',
-            url, css_class, user.username, display_text
+            '<a href="{}" class="profile-link {}" title="{}">{}</a>',
+            url, css_class, f"پروفایل {user.username}", display_text
         )
     else:
-        return format_html(
-            '<span class="text-muted {}" title="برای مشاهده پروفایل باید وارد شوید">{}</span>',
-            css_class, display_text
-        )
+        return format_html('<span class="text-muted">{}</span>', display_text)
 
 @register.simple_tag
 def profile_image_link(user, current_user, image_url, alt_text, css_class="", size="70px"):

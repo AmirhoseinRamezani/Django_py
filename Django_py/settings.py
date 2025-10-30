@@ -53,6 +53,11 @@ INSTALLED_APPS = [
     'django_summernote',
     'website.apps.WebsiteConfig',
     'blog',
+    'tours',
+    'destinations',
+    'services', 
+    'reservation',
+    'testimonials',
     'accounts',
     'whitenoise.runserver_nostatic',  # برای serving فایل‌های استاتیک
     'compressor',  # فشرده‌سازی استاتیک

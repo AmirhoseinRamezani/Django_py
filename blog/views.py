@@ -9,33 +9,43 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 from django.core.paginator import Paginator
 from django.contrib.auth.models import User
+from django.db.models import Prefetch
 
-# Create your views here.
 def blog_view(request):
-    """صفحه اصلی بلاگ"""
-    posts_list = Post.objects.filter(status=1).order_by('-published_date')
+    """صفحه اصلی بلاگ - بهینه‌سازی شده"""
+    posts_list = Post.objects.filter(status=1)\
+        .select_related('author', 'author__profile')\
+        .prefetch_related(
+            'categories',
+            'tags',
+            Prefetch('comments', queryset=Comment.objects.filter(approved=True))
+        )\
+        .order_by('-published_date')
+    
+    # تعیین پروفایل برای نمایش
+    profile_user = get_default_profile_user(request)
+    
     paginator = Paginator(posts_list, 4)
     page = request.GET.get('page')
     posts = paginator.get_page(page)
-    
-    # تعیین پروفایل برای نمایش در سایدبار
-    if request.user.is_authenticated:
-        # اگر کاربر لاگین کرده، پروفایل خودش رو نشون بده
-        profile_user = request.user
-    else:
-        # اگر کاربر لاگین نکرده، پروفایل مدیر سایت رو نشون بده
-        try:
-            profile_user = User.objects.filter(profile__user_level='admin').first()
-            if not profile_user:
-                profile_user = User.objects.filter(is_staff=True).first()
-        except:
-            profile_user = None
     
     context = {
         'posts': posts,
         'profile_user': profile_user,
     }
     return render(request, 'blog/blog-home.html', context)
+
+def get_default_profile_user(request):
+    """دریافت کاربر پیش‌فرض برای نمایش پروفایل"""
+    if request.user.is_authenticated:
+        return request.user
+    else:
+        # واکشی ادمین اصلی سایت
+        return User.objects.filter(
+            profile__user_level__in=['admin', 'super_admin']
+        ).select_related('profile').first()
+# Create your views here.
+
 
 def blog_single(request, pid):
     """صفحه تک پست"""

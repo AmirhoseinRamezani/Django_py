@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="contact-page-area section-gap">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">رزرو تور: {{ tour.title }}</h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- اطلاعات تور -->
+                        <div class="tour-summary mb-4 p-3 border rounded">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <img src="{{ tour.featured_image.url }}" alt="{{ tour.title }}" class="img-fluid rounded">
+                                </div>
+                                <div class="col-md-8">
+                                    <h5>{{ tour.title }}</h5>
+                                    <p class="text-muted">{{ tour.short_description }}</p>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small><strong>قیمت:</strong> {{ tour.get_current_price }} تومان</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <small><strong>ظرفیت باقیمانده:</strong> {{ tour.available_seats }}</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <small><strong>مدت:</strong> {{ tour.duration_days }} روز</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <small><strong>وسیله نقلیه:</strong> {{ tour.transportation.name }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- انتخاب صندلی -->
+                        {% if tour.seat_selection_available %}
+                        <div class="seat-selection mb-4">
+                            <h5>انتخاب صندلی</h5>
+                            <div class="alert alert-info">
+                                <small>لطفا صندلی‌های مورد نظر خود را انتخاب کنید</small>
+                            </div>
+                            
+                            <div class="seat-map border rounded p-3 text-center">
+                                <div id="seat-container" class="mb-3">
+                                    <!-- صندلی‌ها با JavaScript لود می‌شوند -->
+                                </div>
+                                <div class="seat-legend">
+                                    <span class="seat-available mx-2"><i class="fa fa-square text-success"></i> خالی</span>
+                                    <span class="seat-selected mx-2"><i class="fa fa-square text-primary"></i> انتخاب شده</span>
+                                    <span class="seat-occupied mx-2"><i class="fa fa-square text-danger"></i> پر</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- فرم رزرو -->
+                        <form method="post" id="booking-form">
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>تعداد مسافرین</label>
+                                        {{ form.passenger_count }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- اطلاعات مسافرین -->
+                            <div id="passenger-info" class="mt-3">
+                                <!-- با JavaScript پر می‌شود -->
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label>درخواست‌های ویژه</label>
+                                {{ form.special_requests }}
+                            </div>
+
+                            <input type="hidden" name="selected_seats" id="selected-seats">
+
+                            <div class="mt-4">
+                                <button type="submit" class="genric-btn primary w-100">تأیید و پرداخت</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if tour.seat_selection_available %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // لود صندلی‌ها
+    fetch(`/tours/{{ tour.id }}/seats/`)
+        .then(response => response.json())
+        .then(data => {
+            renderSeats(data.seats);
+        });
+
+    function renderSeats(seats) {
+        const container = document.getElementById('seat-container');
+        let maxRow = 0;
+        let maxCol = 0;
+
+        // پیدا کردن ماکزیمم ردیف و ستون
+        seats.forEach(seat => {
+            maxRow = Math.max(maxRow, seat.row);
+            maxCol = Math.max(maxCol, parseInt(seat.column));
+        });
+
+        // ایجاد نقشه صندلی
+        let seatMap = '<div class="seat-map-grid">';
+        for (let row = 1; row <= maxRow; row++) {
+            seatMap += `<div class="seat-row">`;
+            for (let col = 1; col <= maxCol; col++) {
+                const seat = seats.find(s => s.row === row && parseInt(s.column) === col);
+                if (seat) {
+                    const seatClass = seat.window_seat ? 'window' : seat.aisle_seat ? 'aisle' : 'normal';
+                    seatMap += `
+                        <div class="seat ${seatClass}" data-seat-id="${seat.id}" data-seat-number="${seat.seat_number}">
+                            ${seat.seat_number}
+                        </div>
+                    `;
+                } else {
+                    seatMap += `<div class="seat empty"></div>`;
+                }
+            }
+            seatMap += `</div>`;
+        }
+        seatMap += '</div>';
+        container.innerHTML = seatMap;
+
+        // اضافه کردن event listener برای صندلی‌ها
+        document.querySelectorAll('.seat:not(.empty)').forEach(seat => {
+            seat.addEventListener('click', function() {
+                const seatId = this.getAttribute('data-seat-id');
+                if (this.classList.contains('selected')) {
+                    this.classList.remove('selected');
+                    removeSeat(seatId);
+                } else {
+                    this.classList.add('selected');
+                    addSeat(seatId);
+                }
+            });
+        });
+    }
+
+    let selectedSeats = [];
+
+    function addSeat(seatId) {
+        if (!selectedSeats.includes(seatId)) {
+            selectedSeats.push(seatId);
+            updateSelectedSeatsInput();
+        }
+    }
+
+    function removeSeat(seatId) {
+        selectedSeats = selectedSeats.filter(id => id !== seatId);
+        updateSelectedSeatsInput();
+    }
+
+    function updateSelectedSeatsInput() {
+        document.getElementById('selected-seats').value = selectedSeats.join(',');
+    }
+});
+</script>
+
+<style>
+.seat-map-grid {
+    display: inline-block;
+}
+.seat-row {
+    display: flex;
+    margin-bottom: 5px;
+}
+.seat {
+    width: 30px;
+    height: 30px;
+    margin: 2px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 10px;
+}
+.seat.available {
+    background: #28a745;
+    color: white;
+}
+.seat.selected {
+    background: #007bff;
+    color: white;
+}
+.seat.occupied {
+    background: #dc3545;
+    color: white;
+    cursor: not-allowed;
+}
+.seat.window {
+    border-color: #ffc107;
+}
+.seat.aisle {
+    border-color: #17a2b8;
+}
+.seat.empty {
+    background: transparent;
+    border: none;
+    cursor: default;
+}
+</style>
+{% endif %}
+{% endblock %}
