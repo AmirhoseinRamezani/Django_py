@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page.meta_title|default:page.title }} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+    .page-section {
+        margin-bottom: 40px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    .tour-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    .tour-card:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- start banner Area -->
+<section class="relative about-banner">
+    <div class="overlay overlay-bg"></div>
+    <div class="container">
+        <div class="row d-flex align-items-center justify-content-center">
+            <div class="about-content col-lg-12">
+                <h1 class="text-white">{{ page.title }}</h1>
+                <p class="text-white link-nav">
+                    <a href="{% url 'website:index' %}">خانه</a>
+                    <span class="lnr lnr-arrow-right"></span>
+                    <a href="{% url 'pages:page_list' %}">صفحات</a>
+                    <span class="lnr lnr-arrow-right"></span>
+                    <span class="text-white">{{ page.title }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End banner Area -->
+
+<!-- Start page-content Area -->
+<section class="post-content-area single-post-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 posts-list">
+                <div class="single-post row">
+                    {% if page.featured_image %}
+                    <div class="col-lg-12">
+                        <div class="feature-img">
+                            <img class="img-fluid" src="{{ page.featured_image.url }}" alt="{{ page.title }}">
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="col-lg-12 col-md-12 meta-details">
+                        <div class="user-details row">
+                            <p class="user-name col-lg-4 col-md-6">
+                                <a href="#">{{ page.author.get_full_name|default:page.author.username }}</a>
+                                <span class="lnr lnr-user"></span>
+                            </p>
+                            <p class="date col-lg-4 col-md-6">
+                                <a href="#">{{ page.published_date|date:"d M Y" }}</a>
+                                <span class="lnr lnr-calendar-full"></span>
+                            </p>
+                            <p class="view col-lg-4 col-md-6">
+                                <a href="#">{{ page.page_type_display }}</a>
+                                <span class="lnr lnr-tag"></span>
+                            </p>
+                        </div>
+                        <hr>
+                    </div>
+                    
+                    <div class="col-lg-12">
+                        <div class="page-content">
+                            {{ page.content|safe }}
+                        </div>
+
+                        <!-- بخش‌های صفحه -->
+                        {% for section in page.sections.all %}
+                        {% if section.is_active %}
+                        <div class="page-section mt-4">
+                            {% if section.image %}
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <img src="{{ section.image.url }}" class="img-fluid" alt="{{ section.title }}">
+                                </div>
+                                <div class="col-md-8">
+                                    <h4>{{ section.title }}</h4>
+                                    <p>{{ section.content|safe }}</p>
+                                </div>
+                            </div>
+                            {% else %}
+                            <h4>{{ section.title }}</h4>
+                            <p>{{ section.content|safe }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- صفحات مرتبط -->
+                {% if related_pages %}
+                <div class="related-pages mt-5">
+                    <h3 class="mb-4">صفحات مرتبط</h3>
+                    <div class="row">
+                        {% for related_page in related_pages %}
+                        <div class="col-lg-6 col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ related_page.title }}</h5>
+                                    <p class="card-text">{{ related_page.excerpt|default:related_page.content|striptags|truncatewords:15 }}</p>
+                                    <a href="{{ related_page.get_absolute_url }}" class="primary-btn">مطالعه بیشتر</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- سایدبار -->
+            <div class="col-lg-4 sidebar-widgets">
+                <div class="widget-wrap">
+                    <!-- تورهای پیش رو -->
+                    <div class="single-sidebar-widget popular-post-widget">
+                        <h4 class="popular-title">تورهای پیش رو</h4>
+                        <div class="popular-post-list">
+                            {% for tour in upcoming_tours %}
+                            <div class="single-post-list d-flex flex-row align-items-center tour-card">
+                                <div class="thumb">
+                                    <img class="img-fluid" src="{{ tour.featured_image.url }}" alt="{{ tour.title }}" style="width: 80px; height: 60px; object-fit: cover;">
+                                </div>
+                                <div class="details ml-3">
+                                    <a href="{{ tour.get_absolute_url }}">
+                                        <h6>{{ tour.title|truncatewords:4 }}</h6>
+                                    </a>
+                                    <p class="mb-1"><small>{{ tour.departure_datetime|date:"Y/m/d" }}</small></p>
+                                    <p class="price mb-0"><strong>{{ tour.base_price }} تومان</strong></p>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <p class="text-muted">هیچ توری در پیش رو نیست.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- پست‌های تخفیفی -->
+                    <div class="single-sidebar-widget popular-post-widget">
+                        <h4 class="popular-title">تخفیف‌های ویژه</h4>
+                        <div class="popular-post-list">
+                            {% for post in discount_posts %}
+                            <div class="single-post-list d-flex flex-row align-items-center">
+                                <div class="thumb">
+                                    <img class="img-fluid" src="{{ post.image.url }}" alt="{{ post.title }}" style="width: 80px; height: 60px; object-fit: cover;">
+                                </div>
+                                <div class="details ml-3">
+                                    <a href="{{ post.get_absolute_url }}">
+                                        <h6>{{ post.title|truncatewords:4 }}</h6>
+                                    </a>
+                                    <p>{{ post.published_date|date:"Y/m/d" }}</p>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <p class="text-muted">هیچ تخفیفی موجود نیست.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- لینک‌های سریع -->
+                    <div class="single-sidebar-widget category-widget">
+                        <h4 class="category-title">لینک‌های سریع</h4>
+                        <ul class="cat-list">
+                            <li><a href="{% url 'tours:list' %}">تورهای مسافرتی</a></li>
+                            <li><a href="{% url 'blog:index' %}">وبلاگ سفر</a></li>
+                            <li><a href="{% url 'website:contact' %}">تماس با ما</a></li>
+                            <li><a href="{% url 'Reservation:booking_list' %}">رزرواسیون</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End page-content Area -->
+{% endblock %}

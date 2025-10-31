@@ -13,19 +13,29 @@ from destinations.models import Destination
 from tours.models import Tour
 from testimonials.models import Testimonial
 from services.models import Service
+from pages.models import Page
+from blog.models import Post
+
 
 
 # Create your views here.
 # from django.http import HttpResponse,JsonResponse
 @never_cache
 def index_view(request):
-    """صفحه اصلی وبسایت - بهینه‌سازی شده"""
+    """صفحه اصلی وبسایت - فقط 6 پست آخر"""
     # واکشی پست‌های ویژه برای نمایش در صفحه اصلی
     try:
-        featured_posts = Post.objects.filter(status=True)[:3]
-    except:
+        # ✅ فقط 6 پست آخر
+        featured_posts = Post.objects.filter(status='published').order_by('-published_date')[:6]
+        print(f"✅ پست‌های ویژه (6 پست آخر): {featured_posts.count()}")
+    except Exception as e:
+        print(f"❌ خطا در واکشی پست‌های ویژه: {e}")
         featured_posts = []
     
+    # 6 پست آخر برای اسلایدر (همان featured_posts)
+    slider_posts = featured_posts
+    
+    # بقیه کدهای موجود...
     try:
         popular_destinations = Destination.objects.filter(is_popular=True, is_active=True)[:3]
     except:
@@ -37,11 +47,9 @@ def index_view(request):
         featured_tours = []
     
     try:
-        # استفاده از فیلدهای موجود بدون is_active
         testimonials = Testimonial.objects.filter(is_approved=True, is_featured=True)[:4]
     except:
         try:
-            # اگر بازهم خطا داد، فقط از is_approved استفاده کن
             testimonials = Testimonial.objects.filter(is_approved=True)[:4]
         except:
             testimonials = []
@@ -50,16 +58,31 @@ def index_view(request):
         services = Service.objects.all()[:4]
     except:
         services = []
+        
+    # صفحات ویژه برای نمایش در صفحه اصلی
+    featured_pages = Page.objects.filter(
+        status='published',
+        show_in_menu=True
+    ).order_by('menu_order')[:4]
+    
+    # پست‌های مهم و تخفیفی (همان 6 پست آخر)
+    important_posts = featured_posts
     
     context = {
-        'featured_posts': featured_posts,
+        'featured_posts': featured_posts,  # 6 پست آخر
+        'slider_posts': slider_posts,      # 6 پست آخر
         'popular_destinations': popular_destinations,
         'featured_tours': featured_tours,
         'testimonials': testimonials,
         'services': services,
+        'featured_pages': featured_pages,
+        'important_posts': important_posts,  # 6 پست آخر
     }
+    
+    print(f"🎯 Context ارسال شده به صفحه اصلی:")
+    print(f"   پست‌های بلاگ: {len(featured_posts)} پست آخر")
+    
     return render(request, 'website/index.html', context)
-
 def about_view(request):
     return render(request, 'website/about.html')
 

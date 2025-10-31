@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ tour.title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<section class="tour-detail-section">
+    <div class="container">
+        <div class="row">
+            <!-- تصویر و اطلاعات اصلی -->
+            <div class="col-lg-8">
+                <div class="tour-main-image mb-4">
+                    <img src="{{ tour.featured_image.url }}" alt="{{ tour.title }}" class="img-fluid rounded">
+                    {% if has_discount %}
+                    <div class="discount-badge">تخفیف ویژه</div>
+                    {% endif %}
+                </div>
+
+                <div class="tour-content">
+                    <h1 class="tour-title">{{ tour.title }}</h1>
+                    <p class="tour-description">{{ tour.description }}</p>
+                    
+                    <!-- اطلاعات سفر -->
+                    <div class="tour-info-grid">
+                        <div class="info-item">
+                            <i class="fa fa-map-marker"></i>
+                            <div>
+                                <strong>مسیر</strong>
+                                <span>{{ tour.origin_city }} → {{ tour.destination_city }}</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fa fa-calendar"></i>
+                            <div>
+                                <strong>تاریخ حرکت</strong>
+                                <span>{{ tour.departure_datetime|date:"d M Y - H:i" }}</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fa fa-clock-o"></i>
+                            <div>
+                                <strong>مدت سفر</strong>
+                                <span>{{ tour.get_duration_display }}</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fa fa-users"></i>
+                            <div>
+                                <strong>ظرفیت باقیمانده</strong>
+                                <span>{{ tour.available_capacity }} نفر</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- خدمات شامل و غیرشامل -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">خدمات شامل</h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        {% for item in includes_list %}
+                                        <li><i class="fa fa-check text-success"></i> {{ item }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-warning text-dark">
+                                    <h5 class="mb-0">خدمات غیرشامل</h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        {% for item in excludes_list %}
+                                        <li><i class="fa fa-times text-danger"></i> {{ item }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- سایدبار خرید -->
+            <div class="col-lg-4">
+                <div class="booking-sidebar sticky-top">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">رزرو تور</h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- نمایش قیمت -->
+                            <div class="price-section text-center mb-3">
+                                {% if has_discount %}
+                                <div class="old-price text-muted">
+                                    <del>{{ tour.base_price }} تومان</del>
+                                </div>
+                                <div class="discount-amount text-success">
+                                    <small>تخفیف: {{ discount_amount }} تومان</small>
+                                </div>
+                                {% endif %}
+                                <div class="final-price h3 text-primary">
+                                    {{ final_price }} تومان
+                                </div>
+                                <small class="text-muted">برای هر نفر</small>
+                            </div>
+
+                            <!-- فرم رزرو سریع -->
+                            {% if can_book %}
+                                {% if user_authenticated %}
+                                <form method="post" action="{% url 'tours:quick_booking' tour.slug %}">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <label>تعداد بزرگسال</label>
+                                        <select name="adult_count" class="form-control" id="adult-count">
+                                            {% for i in "12345" %}
+                                            <option value="{{ forloop.counter }}">{{ forloop.counter }} نفر</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="price-calculation mb-3 p-2 bg-light rounded">
+                                        <div class="d-flex justify-content-between">
+                                            <span>قیمت کل:</span>
+                                            <span id="total-price">{{ final_price }} تومان</span>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success btn-lg btn-block">
+                                        <i class="fa fa-shopping-cart"></i>
+                                        خرید سریع
+                                    </button>
+                                </form>
+                                {% else %}
+                                <div class="alert alert-warning">
+                                    <p>برای رزرو تور باید وارد حساب کاربری خود شوید.</p>
+                                    <a href="{% url 'accounts:login' %}?next={{ request.path }}" 
+                                       class="btn btn-primary btn-block">
+                                        ورود به حساب کاربری
+                                    </a>
+                                </div>
+                                {% endif %}
+                            {% else %}
+                            <div class="alert alert-danger">
+                                <p>این تور در حال حاضر قابل رزرو نیست.</p>
+                            </div>
+                            {% endif %}
+
+                            <!-- اطلاعات مهم -->
+                            <div class="tour-features mt-3">
+                                <div class="feature-item">
+                                    <i class="fa fa-check text-success"></i>
+                                    <span>تأیید فوری</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fa fa-shield text-info"></i>
+                                    <span>ضمانت بازگشت وجه</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fa fa-phone text-primary"></i>
+                                    <span>پشتیبانی 24/7</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- تورهای مرتبط -->
+        {% if related_tours %}
+        <section class="related-tours mt-5">
+            <h3 class="section-title">تورهای مشابه</h3>
+            <div class="row">
+                {% for related_tour in related_tours %}
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="tour-card">
+                        <img src="{{ related_tour.featured_image.url }}" alt="{{ related_tour.title }}">
+                        <div class="tour-info">
+                            <h5>{{ related_tour.title }}</h5>
+                            <p class="tour-destination">
+                                {{ related_tour.origin_city }} → {{ related_tour.destination_city }}
+                            </p>
+                            <p class="tour-price">
+                                {{ related_tour.get_current_price }} تومان
+                            </p>
+                            <a href="{% url 'tours:tour_detail' related_tour.slug %}" class="btn btn-outline-primary btn-sm">
+                                مشاهده جزئیات
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+document.addEventListener('DOMContentLoaded', function() {
+    const adultCount = document.getElementById('adult-count');
+    const totalPrice = document.getElementById('total-price');
+    const finalPrice = {{ final_price }};
+
+    function updateTotalPrice() {
+        const count = parseInt(adultCount.value);
+        const total = finalPrice * count;
+        // استفاده از روش جایگزین برای فرمت کردن اعداد
+        totalPrice.textContent = formatNumber(total) + ' تومان';
+    }
+
+    // تابع برای فرمت کردن اعداد به صورت فارسی
+    function formatNumber(num) {
+        return new Intl.NumberFormat('fa-IR').format(num);
+    }
+
+    adultCount.addEventListener('change', updateTotalPrice);
+    updateTotalPrice(); // مقدار اولیه
+});
+</script>
+{% endblock %}

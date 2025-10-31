@@ -1,0 +1,95 @@
+<!-- templates/tours/tour_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تورهای مسافرتی - {{ block.super }}{% endblock %}
+
+{% block content %}
+<section class="tour-list-section">
+    <div class="container">
+        <div class="row">
+            <!-- فیلترها -->
+            <div class="col-lg-3">
+                <div class="filter-sidebar">
+                    <h4>فیلترها</h4>
+                    <form method="get">
+                        <div class="form-group">
+                            <label>مقصد</label>
+                            <input type="text" name="destination" class="form-control" 
+                                   value="{{ request.GET.destination }}">
+                        </div>
+                        <div class="form-group">
+                            <label>دسته‌بندی</label>
+                            <select name="category" class="form-control">
+                                <option value="">همه</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}" 
+                                        {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ cat.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">اعمال فیلتر</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- لیست تورها -->
+            <div class="col-lg-9">
+                <div class="tour-grid">
+                    {% for tour in tours %}
+                    <div class="tour-card">
+                        <img src="{{ tour.featured_image.url }}" alt="{{ tour.title }}">
+                        <div class="tour-info">
+                            <h3>{{ tour.title }}</h3>
+                            <p class="tour-destination">
+                                {{ tour.origin_city }} → {{ tour.destination_city }}
+                            </p>
+                            <p class="tour-date">
+                                {{ tour.departure_datetime|date:"d M Y" }}
+                            </p>
+                            <p class="tour-price">
+                                {{ tour.get_current_price }} تومان
+                            </p>
+                            <a href="{% url 'tours:tour_detail' tour.slug %}" class="btn btn-primary">
+                                مشاهده جزئیات
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <p class="text-center">تور فعالی یافت نشد.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- صفحه‌بندی -->
+                {% if tours.has_other_pages %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if tours.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ tours.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">قبلی</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for num in tours.paginator.page_range %}
+                        <li class="page-item {% if tours.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+                        
+                        {% if tours.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ tours.next_page_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">بعدی</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

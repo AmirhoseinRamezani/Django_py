@@ -7,12 +7,12 @@ class LatestEntriesFeed(Feed):
     title = "Blog Newest Posts"
     link = "/rss/feed"
     description = "Latest posts from our blog" 
-    # 🔽🔽🔽 post-content.html 🔽🔽🔽
     description_template = "feeds/post-content.html"
     
     def items(self):
+        # ✅ اصلاح شده: استفاده از status='published'
         return Post.objects.filter(
-            status=True
+            status='published'
         ).select_related('author').prefetch_related('categories', 'tags')[:20]
     
     def item_title(self, item):
@@ -30,7 +30,6 @@ class LatestEntriesFeed(Feed):
     def item_updateddate(self, item):
         return item.updated_date
 
-# فید Atom (اختیاری)
 class AtomSiteNewsFeed(LatestEntriesFeed):
     feed_type = Atom1Feed
     subtitle = LatestEntriesFeed.description

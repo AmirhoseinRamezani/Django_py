@@ -77,11 +77,16 @@
                         <li><a href="{% url 'blog:index' %} ">Blog</a></li>
                         <li class="menu-has-children"><a href="">Pages</a>
                             <ul>
-                                <li><a href="elements.html">Elements</a></li>
-                                <li class="menu-has-children"><a href="">Level 2 </a>
+                                {% for page in pages_menu %}
+                                <li><a href="{{ page.get_absolute_url }}">{{ page.title }}</a></li>
+                                {% endfor %}
+                                <li><a href="{% url 'pages:page_list' %}">All Pages</a></li>
+                                <li class="menu-has-children"><a href="">Services</a>
                                     <ul>
-                                        <li><a href="#">Item One</a></li>
-                                        <li><a href="#">Item Two</a></li>
+                                        <li><a href="{% url 'tours:tour_list' %}">Tours</a></li>
+                                        <li><a href="#">Reservation</a></li>
+
+                                        <li><a href="{% url 'pages:pages_by_type' 'service' %}">Our Services</a></li>
                                     </ul>
                                 </li>
                             </ul>

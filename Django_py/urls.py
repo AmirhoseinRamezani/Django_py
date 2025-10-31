@@ -47,7 +47,9 @@ urlpatterns = [    # path ('url addree', 'view' , name)
     path('destinations/', include('destinations.urls')),
     path('services/', include('services.urls')),
     path('testimonials/', include('testimonials.urls')),
-    path('reservation/', include('reservation.urls')),
+    # path('reservation/', include('reservation.urls', namespace='Reservation')),
+    path('pages/', include('pages.urls', namespace='pages')), 
+    
     
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

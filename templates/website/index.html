@@ -14,7 +14,7 @@
                     If you are looking at blank cassettes on the web, you may be very confused at the difference in
                     price. You may see some for as low as $.17 each.
                 </p>
-                <a href="{% url 'tours:list' %}" class="primary-btn text-uppercase">Discover Our Tours</a>
+                <a href="{% url 'tours:tour_list' %}" class="primary-btn text-uppercase">Discover Our Tours</a>
             </div>
         </div>
     </div>
@@ -96,30 +96,80 @@
 </section>
 <!-- End other-issue Area -->
 
-<!-- Start home-about Area -->
-<section class="home-about-area">
-    <div class="container-fluid">
-        <div class="row align-items-center justify-content-end">
-            <div class="col-lg-6 col-md-12 home-about-left">
-                <h1>
-                    Did not find your Package? <br>
-                    Feel free to ask us. <br>
-                    We'll make it for you
-                </h1>
-                <p>
-                    inappropriate behavior is often laughed off as "boys will be boys," women face higher conduct
-                    standards especially in the workplace. That's why it's crucial that, as women, our behavior on
-                    the job is beyond reproach. inappropriate behavior is often laughed.
-                </p>
-                <a href="{% url 'website:contact' %}" class="primary-btn text-uppercase">request custom price</a>
+<!-- Start Featured Pages Area -->
+<section class="featured-pages-area section-gap">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="menu-content pb-70 col-lg-8">
+                <div class="title text-center">
+                    <h1 class="mb-10">اطلاعات مهم</h1>
+                    <p>آخرین اخبار و اطلاعات مهم شرکت مسافرتی ما</p>
+                </div>
             </div>
-            <div class="col-lg-6 col-md-12 home-about-right no-padding">
-                <img class="img-fluid" src="{% static 'img/about-img.jpg' %}" alt="">
+        </div>
+        <div class="row">
+            {% for page in featured_pages %}
+            <div class="col-lg-3 col-md-6">
+                <div class="single-featured-page">
+                    <div class="thumb">
+                        {% if page.featured_image %}
+                        <img class="img-fluid" src="{{ page.featured_image.url }}" alt="{{ page.title }}">
+                        {% else %}
+                        <img class="img-fluid" src="{% static 'img/p1.jpg' %}" alt="{{ page.title }}">
+                        {% endif %}
+                    </div>
+                    <div class="details">
+                        <a href="{{ page.get_absolute_url }}">
+                            <h4>{{ page.title }}</h4>
+                        </a>
+                        <p>{{ page.excerpt|default:page.content|striptags|truncatewords:15 }}</p>
+                        <a href="{{ page.get_absolute_url }}" class="primary-btn">مطالعه بیشتر</a>
+                    </div>
+                </div>
             </div>
+            {% endfor %}
         </div>
     </div>
 </section>
-<!-- End home-about Area -->
+<!-- End Featured Pages Area -->
+
+<!-- Start Important Posts Area -->
+<section class="important-posts-area section-gap">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="menu-content pb-70 col-lg-8">
+                <div class="title text-center">
+                    <h1 class="mb-10">آخرین اخبار و تخفیف‌ها</h1>
+                    <p>از آخرین اخبار و پیشنهادات ویژه ما مطلع شوید</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            {% for post in important_posts %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card post-card h-100">
+                    <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}">
+                    <div class="card-body">
+                        <div class="tags mb-2">
+                            {% for category in post.categories.all|slice:":2" %}
+                            <span class="badge badge-primary">{{ category.name }}</span>
+                            {% endfor %}
+                        </div>
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="card-text">{{ post.content|striptags|truncatewords:20 }}</p>
+                        <div class="post-meta">
+                            <small class="text-muted">{{ post.published_date|date:"Y/m/d" }}</small>
+                            <span class="views"><i class="fa fa-eye"></i> {{ post.counted_views }}</span>
+                        </div>
+                        <a href="{{ post.get_absolute_url }}" class="primary-btn mt-3">مطالعه بیشتر</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<!-- End Important Posts Area -->
 
 <!-- Start testimonial Area -->
 <section class="testimonial-area section-gap">
@@ -167,52 +217,214 @@
 <!-- End testimonial Area -->
 
 <!-- Start blog Area -->
-<section class="recent-blog-area section-gap">
+<section class="blog-slider-section section-gap">
     <div class="container">
         <div class="row d-flex justify-content-center">
-            <div class="menu-content pb-60 col-lg-9">
+            <div class="menu-content pb-70 col-lg-8">
                 <div class="title text-center">
-                    <h1 class="mb-10">Latest from Our Blog</h1>
-                    <p>With the exception of Nietzsche, no other madman has contributed so much to human sanity as has.</p>
+                    <h1 class="mb-10">آخرین مطالب بلاگ</h1>
+                    <p>جدیدترین مقالات و اخبار سفر</p>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="active-recent-blog-carusel">
+        
+        <!-- نمایش تعداد پست‌ها -->
+        <div class="alert alert-info mb-4 text-center">
+            <strong>آخرین مطالب:</strong> 
+            <span class="badge badge-primary">{{ featured_posts|length }} پست جدید</span>
+        </div>
+        
+        {% if featured_posts %}
+        <div class="simple-blog-slider">
+            <div class="blog-slider-container">
                 {% for post in featured_posts %}
-                <div class="single-recent-blog-post item">
-                    <div class="thumb">
-                        <img class="img-fluid" src="{{ post.image.url }}" alt="{{ post.title }}">
-                    </div>
-                    <div class="details">
-                        <div class="tags">
-                            <ul>
-                                {% for category in post.categories.all|slice:":2" %}
-                                <li>
-                                    <a href="#">{{ category.name }}</a>
-                                </li>
-                                {% endfor %}
-                            </ul>
+                <div class="blog-slide-item">
+                    <div class="blog-card">
+                        <div class="blog-image">
+                            {% if post.image %}
+                            <img src="{{ post.image.url }}" alt="{{ post.title }}">
+                            {% else %}
+                            <img src="{% static 'img/default-post.jpg' %}" alt="{{ post.title }}">
+                            {% endif %}
+                            <div class="blog-overlay">
+                                <a href="{% url 'blog:single' post.id %}" class="read-more-btn">
+                                    <i class="fa fa-eye"></i>
+                                </a>
+                            </div>
                         </div>
-                        <a href="{{ post.get_absolute_url }}">
-                            <h4 class="title">{{ post.title }}</h4>
-                        </a>
-                        <p>{{ post.excerpt }}</p>
-                        <h6 class="date">{{ post.published_date|date:"F j, Y" }}</h6>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="single-recent-blog-post item">
-                    <div class="details">
-                        <h4 class="title">No blog posts available</h4>
-                        <p>Check back later for updates.</p>
+                        <div class="blog-content">
+                            <div class="blog-meta">
+                                <span class="date">
+                                    <i class="fa fa-calendar"></i>
+                                    {{ post.published_date|date:"Y/m/d" }}
+                                </span>
+                                <span class="views">
+                                    <i class="fa fa-eye"></i>
+                                    {{ post.counted_views }}
+                                </span>
+                            </div>
+                            <h3 class="blog-title">
+                                <a href="{% url 'blog:single' post.id %}">
+                                    {{ post.title|truncatewords:8 }}
+                                </a>
+                            </h3>
+                            <p class="blog-excerpt">
+                                {{ post.excerpt|default:post.content|striptags|truncatewords:15 }}
+                            </p>
+                            <a href="{% url 'blog:single' post.id %}" class="primary-btn">
+                                مطالعه بیشتر
+                            </a>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
+        
+        <!-- دکمه مشاهده همه پست‌ها -->
+        <div class="text-center mt-4">
+            <a href="{% url 'blog:index' %}" class="btn btn-outline-primary">
+                مشاهده همه پست‌ها
+            </a>
+        </div>
+        {% else %}
+        <div class="alert alert-warning text-center">
+            <p>هنوز پستی منتشر نشده است.</p>
+            <a href="{% url 'blog:index' %}" class="btn btn-primary">برو به بلاگ</a>
+        </div>
+        {% endif %}
     </div>
 </section>
+
+<style>
+.simple-blog-slider {
+    overflow: hidden;
+}
+
+.blog-slider-container {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: thin;
+}
+
+.blog-slider-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.blog-slider-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.blog-slider-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.blog-slider-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.blog-slide-item {
+    flex: 0 0 300px;
+}
+
+.blog-card {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.blog-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.blog-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.blog-card:hover .blog-image img {
+    transform: scale(1.1);
+}
+
+.blog-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.blog-card:hover .blog-overlay {
+    opacity: 1;
+}
+
+.read-more-btn {
+    color: white;
+    font-size: 20px;
+    text-decoration: none;
+}
+
+.blog-content {
+    padding: 20px;
+}
+
+.blog-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #666;
+}
+
+.blog-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.blog-title {
+    font-size: 16px;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.blog-title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.blog-title a:hover {
+    color: #007bff;
+}
+
+.blog-excerpt {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+</style>
 <!-- End recent-blog Area -->
 
 {% endblock %}

@@ -56,12 +56,14 @@ INSTALLED_APPS = [
     'tours',
     'destinations',
     'services', 
-    'reservation',
+    # 'reservation',
     'testimonials',
     'accounts',
     'whitenoise.runserver_nostatic',  # برای serving فایل‌های استاتیک
     'compressor',  # فشرده‌سازی استاتیک
     # 'django_ratelimit',
+    'ckeditor',
+    'pages',
 ]
 # sites framework
 SITE_ID = 2
@@ -122,6 +124,14 @@ MULTI_CAPTCHA_ADMIN = {
     'engine': 'simple-captcha',
 }
 
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Full',
+        'height': 300,
+        'width': '100%',
+    },
+}
+
 MIDDLEWARE = [
     # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -150,6 +160,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'pages.context_processors.pages_menu',
             ],
         },
     },
