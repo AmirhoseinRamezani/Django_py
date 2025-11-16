@@ -22,7 +22,11 @@
 	<title>{% block title %}سایت من{% endblock %}</title>
 
 	<link href="https://fonts.googleapis.com/css?family=Poppins:100,200,400,300,500,600,700" rel="stylesheet">
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> 5f4e06d0fae130352ac7256b1ba7e1c0a1ab0492
 	<link rel="stylesheet" href="{% static 'css/linearicons.css'%}">
 	<link rel="stylesheet" href="{% static 'css/font-awesome.min.css'%}">
 	<link rel="stylesheet" href="{% static 'css/bootstrap.css'%}">
@@ -32,7 +36,11 @@
 	<link rel="stylesheet" href="{% static 'css/animate.min.css'%}">
 	<link rel="stylesheet" href="{% static 'css/owl.carousel.css'%}">
 	<link rel="stylesheet" href="{% static 'css/main.css'%}">
+<<<<<<< HEAD
 	<link rel="stylesheet" href="{% static 'css/profile-links.css' %}">
+=======
+    <link rel="stylesheet" href="{% static 'css/profile-links.css' %}">
+>>>>>>> 5f4e06d0fae130352ac7256b1ba7e1c0a1ab0492
 	{% block extra_css %}{% endblock %}
 </head>
 
@@ -189,8 +197,12 @@
 							<div class="user-details row">
 								<p class="user-name col-lg-12 col-md-12 col-6">
 									<!-- ✅ استفاده از profile_link -->
+<<<<<<< HEAD
 									{% profile_link post.author request.user
 									post.author.get_full_name|default:post.author.username "text-dark" %}
+=======
+									{% profile_link post.author request.user post.author.get_full_name|default:post.author.username "text-dark" %}
+>>>>>>> 5f4e06d0fae130352ac7256b1ba7e1c0a1ab0492
 									<span class="lnr lnr-user"></span>
 								</p>
 								<p class="date col-lg-12 col-md-12 col-6"><a href="#">{{ post.published_date|date:"d M
@@ -382,9 +394,12 @@
 	<script src="{% static 'js/owl.carousel.min.js' %}"></script>
 	<script src="{% static 'js/mail-script.js' %}"></script>
 	<script src="{% static 'js/main.js' %}"></script>
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> 5f4e06d0fae130352ac7256b1ba7e1c0a1ab0492
 	<!-- ✅ فقط یک block extra_js باقی مانده -->
 	{% block extra_js %}{% endblock %}
 </body>
-
 </html>
